@@ -1,0 +1,39 @@
+
+    Quax - A neat desktop zooming tool
+  ======================================
+  
+  
+  1) What is Quax?
+
+    Quax is a  desktop zooming tool intended especially for web developers, but
+  is very handy and friendly for newbies. There are few other tools for this
+  task: XMag, KMag and KZoom. All of them are full featured applications 
+  and take some time to figure how to use them. Quax is *very* easy to use.
+
+    The only thing you need to know is to right click on Quax surface to get
+  the menu.
+
+    Web developers and graphics designer need fast access so they use shortcuts.
+  Read the manual or discover them for yourself in the popup menu.
+  For the manual run:
+
+    man quax
+
+  If you use KDE, then press Alt+F2, type "man:quax" and fire <ENTER> key.
+
+
+  2) How I'll install Quax?
+
+    Read the INSTALL file.
+
+
+  3) How to obtain Quax?
+	
+    Go to http://www.ro.kde.org/quax/
+  
+
+  4) Where I can report bugs and whishes?
+  
+    To the authors. See the AUTHORS file.
+  
+

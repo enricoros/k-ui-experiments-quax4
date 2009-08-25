@@ -1,0 +1,7 @@
+.*
+CVS
+*.dvi
+*.ps
+*.pdf
+manexcludes
+apiexcludes

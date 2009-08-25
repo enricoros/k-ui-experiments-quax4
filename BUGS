@@ -1,0 +1,10 @@
+
+    Quax BUGS
+  =============
+  
+  1) There's a bad interaction between Quax and popup generated
+  by klipper. When you click KDE clipboard tray icon, a
+  popup is shown. Then if you click on Quax it will not get 
+  EnterEvent immediately, but only after few clicks on its
+  surface.
+

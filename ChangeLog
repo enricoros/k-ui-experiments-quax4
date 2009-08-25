@@ -1,0 +1,102 @@
+2003-11-20  claudiuc 1.0-1 release
+
+2003-11-19  claudiuc
+	* spec: updated SuSE and Mandrake spec to include the handbook
+
+2003-11-17  claudiuc
+	* app: corrected URL to new Quax documentation
+	* spec: updated RedHat spec to include the handbook
+
+2003-11-15  claudiuc
+	* doc: finished Docbook user documentation (Quax manual)
+	* app: minor labeling changes for menus 
+
+2003-11-15  claudiuc
+	* doc: finished Doxygen documentation; started Docbook user doc
+	* app: now color tooltip will be repositioned when will
+	get out for screen; made some optimizations, removed unused
+	variables and others are local
+
+2003-06-17  claudiuc
+	* spec: support for RedHat 9.0 (script + spec)
+
+2003-06-16  claudiuc
+	* spec: support for Mandrake 9.x (script + spec)
+	* doc: install instructions for Mandrake 9.x; started to
+	document Quax; more Doxygen setup; updated manual page
+	* app: removed qDebug()'s
+
+2003-06-14  claudiuc 0.9-3 release
+
+2003-06-14  claudiuc
+	* win: quax.mak for buildind Quax under WIN32 completed;
+	added README file for Windows users
+
+2003-06-13  claudiuc
+	* app: more #ifdef's for Windows version of hand_cursor
+	and QT2/3
+	* win: clean-win32.bat for cleaning up after build, improved
+	quax.mak for buildind Quax under WIN32 (almost finished)
+
+
+2003-06-10  claudiuc
+	* app: implemented mouse wheel Quax zoom and rotation
+	* win: #ifdef's and fixes to compile Quax on Qt 2.3.0 GPL
+	on WIN32. It works, but "handy" should be corrected. Added
+	MSVC project files and make file
+
+2003-06-08  claudiuc 0.9-2 release
+
+2003-06-08  claudiuc
+	* doc: updated TODO and corrected README file;
+	improved INSTALL instructions
+	* spec: improved SPEC file and fixed the bug with
+	directories permissions screewing up  
+	* app: removed two qDebug(), fixed a little .destkop file,
+	removed *.pro files 
+
+2003-06-01  claudiuc
+	* color picker: implemented color tooltip and color 
+	picker menu. Now remain to catch undefined cases and 
+	implement Ctrl+C for color
+	* icon: changed Quax application icon
+	* menu: now popup menu doesn't show anymore outside 
+	the screen
+	* interaction: left click when color tip is visible and 
+	color will be copied in clipboard; pointer cursor 
+	track Quax state: hand cursor, cross cursor and sizeall
+	cursor
+	* help: help menu work now using kfmclient from KDE to
+	display Quax man page
+  
+2003-05-29  claudiuc
+	* install: Anatoly Kamchatnov <rev@male.ru> discovered
+	that PREFIX have no default value when compiling from 
+	sources
+  
+2003-05-26  claudiuc
+	* kde: added quax icons: 16x16, 32x32 and 48x48 and
+	moved the *.desktop file location
+	* install: SuSE spec file
+	* website: Anatoly Kamchatnov <rev@male.ru> and
+	Jim Richardson <warlock@eskimo.com> pointed that
+	I messed up links on "Download" section
+  
+2003-05-25  claudiuc 0.9-1 release
+  
+2003-05-24  claudiuc
+	* install: RPM spec file + script to build RPM
+	* doc: improved docs a little
+	* doc: accelerators now work ('this' is the correct
+	parent for popupmenu's and not 'menu')
+
+2003-05-24  claudiuc
+	* install: made qmake based compiling system
+	* docs: added GNU required docs: AUTHORS, ChangeLog etc.
+	
+2003-xx-xx  claudiuc
+	* app: Quax in actual functionality
+	
+2001-xx-xx  claudiuc
+	* app: implemented a simple quax
+

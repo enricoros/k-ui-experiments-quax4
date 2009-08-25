@@ -1,0 +1,47 @@
+
+   Quax TODO
+ =============
+
+DONE: * write HTML/DocBook manual + pictures
+
+DONE: * use QtAssistant or KHelpCenter for help display
+
+ * better About box, i.e. big icon or some splash image
+   and good texts
+   
+DONE: * the app icon must be Quax defined icon
+ 
+DONE: * make KDE integration (*.desktop + icons 16/32/64)
+
+DONE: * better documentation (finish the manual)
+
+ * implement acceleration: when user keep arrow key pressed
+   more than 2-3 seconds then switch to 10x speed
+   
+DONE: * Help menu item
+
+DONE: * implement color picker on zoomed area
+   (Shift+Ctrl key  will make a permanent tooltip
+   apear and showing RGB code for color)
+
+DONE: * ensure color tool tip is inside view area
+
+ * ensure no garbage is grabbed when picker point outside
+   desktop area
+
+DONE(wheel mouse):  * implement Quax rotation by dragging a corner 
+   when Ctrl key is pressed
+ 
+DONE: * write quax cpp+h internal documentation
+
+DONE: * fix the PREFIX problem in src.pro and generated Makefile
+
+
+Davide Canalia <davide@tor.it>
+
+ * an "always on top" option
+ * a "size" option so the user can have a bigger magnified area
+ * a "dock" option so the user can dock the window and use the cursor as 
+   magnify pointer (something like the magnify application under win2k...)
+
+

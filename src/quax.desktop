@@ -1,0 +1,9 @@
+[Desktop Entry]
+Comment=Neat desktop zooming tool
+DocPath=quax/index.html
+Exec=quax
+Icon=quax
+Name=Quax
+Terminal=0
+Type=Application
+X-KDE-StartupNotify=false
