@@ -15,35 +15,17 @@
 #ifndef __quax_h__
 #define __quax_h__
 
-#include <qglobal.h>
-
-#include <qpixmap.h>
-#include <qbitmap.h>
-#include <qimage.h>
-#include <qpainter.h>
-
-#include <qicon.h>
-#include <qwidget.h>
-#include <qlabel.h>
-#include <qmessagebox.h>
-#include <qapplication.h>
-#include <qmatrix.h>
-#include <qapplication.h>
-//Added by qt3to4:
-#include <QMenu>
-#include <QWheelEvent>
+#include <QBitmap>
 #include <QEvent>
-#include <QMouseEvent>
-#include <QTimerEvent>
-#include <QKeyEvent>
-#include <QPaintEvent>
+#include <QIcon>
+#include <QImage>
+#include <QMenu>
+#include <QPixmap>
 #include <QTextBrowser>
-
-#define QUAX_VERSION "1.0"
-#define QUAX_RELEASE "1"
+#include <QWidget>
 
 #define ZOOM_SCALE_MIN 2
-#define ZOOM_SCALE_MAX 5
+#define ZOOM_SCALE_MAX 8
 
 #define SHAPE_WIDTH 150
 #define SHAPE_HEIGHT 150
@@ -130,10 +112,10 @@ class Quax : public QWidget
         QString m_colorStringDecimal,   ///< the current color under mouse as decimals comma seperated
                 m_colorStringHexaLower, ///< the current color under mouse as web RGB with lower hexadecimals
                 m_colorStringHexaUpper; ///< the current color under mouse as web RGB with upper hexadecimals
-        QMenu *menu,      ///< The main menu of Quax
-              *menuZoom,  ///< Menu for zoom levels and zoom in and zoom out items
-              *menuLook,  ///< The "Look at" menu
-              *menuColor; ///< Menu for coying textual representation into clipboard
+        QMenu *m_menu,      ///< The main menu of Quax
+              *m_menuZoom,  ///< Menu for zoom levels and zoom in and zoom out items
+              *m_menuLook,  ///< The "Look at" menu
+              *m_menuColor; ///< Menu for coying textual representation into clipboard
         QActionGroup *m_zoomGroup,
                      *m_rotGroup,
                      *m_colorGroup;
@@ -144,7 +126,7 @@ class Quax : public QWidget
              m_colorTipEnabled;///< if true, the color tooltip is displayed
         int m_zoomLevel, ///< current zoom level
             m_lookAt;    ///< current quadrant direction where Quax "look at"
-        QPoint dragOffset;   ///< the offset between Quax position and new mouse position
+        QPoint m_dragOffset;   ///< the offset between Quax position and new mouse position
 
         /**
          * It grabs the desktop area, scale it, clip it with circle region,

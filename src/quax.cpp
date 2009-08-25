@@ -12,6 +12,8 @@
 //
 //
 
+#include "quax.h"
+
 #include "mag.xpm"
 #include "mag-alpha.xpm"
 #include "exit.xpm"
@@ -24,25 +26,23 @@
 #include "icon.xpm"
 #include "help.xpm"
 
-#include "quax.h"
-
-#include <QToolTip>
+#include <QApplication>
+#include <QClipboard>
 #include <QColor>
 #include <QCursor>
-#include <QClipboard>
-#include <QProcess>
 #include <QDesktopServices>
-#include <QUrl>
-#include <QTimerEvent>
-#include <QKeyEvent>
-#include <QLabel>
-#include <QPixmap>
-#include <QMenu>
-#include <QMouseEvent>
-#include <QEvent>
-#include <QPaintEvent>
-#include <QWheelEvent>
 #include <QDesktopWidget>
+#include <QKeyEvent>
+#include <QMenu>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QProcess>
+#include <QToolTip>
+#include <QUrl>
+#include <QWheelEvent>
 
 
 Quax::Quax()
@@ -57,71 +57,71 @@ Quax::Quax()
 {
     // customize looks
     //setAttribute(Qt::WA_NoSystemBackground);
+    //setAttribute(Qt::WA_TranslucentBackground, true);
     setFixedSize(150, 150);
     setCursor(Qt::PointingHandCursor);
     setWindowIcon(QPixmap(icon_xpm));
     rotate(0);
     
     // build RMB popup menu
-    menu = new QMenu(this);
-
-    menuZoom = new QMenu(tr("Zoom"), this);
-    menuZoom->setIcon(QPixmap(viewmag_xpm));
+    m_menuZoom = new QMenu(tr("Zoom"), this);
+    m_menuZoom->setIcon(QPixmap(viewmag_xpm));
     m_zoomGroup = new QActionGroup(this);
     for (int i = ZOOM_SCALE_MIN; i <= ZOOM_SCALE_MAX; i++) {
-        QAction * zoomAction = menuZoom->addAction(tr("%1:1").arg(i), this, SLOT(slotZoomTo()));
+        QAction * zoomAction = m_menuZoom->addAction(tr("%1:1").arg(i), this, SLOT(slotZoomTo()));
         zoomAction->setCheckable(true);
         zoomAction->setProperty("level", i);
         zoomAction->setActionGroup(m_zoomGroup);
     }
-    menuZoom->addSeparator();
-    menuZoom->addAction(QPixmap(viewmagin_xpm), tr("Zoom In"), this, SLOT(zoomIn()), QKeySequence(tr("+","Zoom In")));
-    menuZoom->addAction(QPixmap(viewmagout_xpm), tr("Zoom Out"), this, SLOT(zoomOut()), QKeySequence(tr("-","Zoom Out")));
+    m_menuZoom->addSeparator();
+    m_menuZoom->addAction(QPixmap(viewmagin_xpm), tr("Zoom In"), this, SLOT(slotZoomIn()), QKeySequence(tr("+","Zoom In")));
+    m_menuZoom->addAction(QPixmap(viewmagout_xpm), tr("Zoom Out"), this, SLOT(slotZoomOut()), QKeySequence(tr("-","Zoom Out")));
 
-    menuLook = new QMenu(tr("Look At"), this);
-    menuLook->setIcon(QPixmap(look_xpm));
+    m_menuLook = new QMenu(tr("Look At"), this);
+    m_menuLook->setIcon(QPixmap(look_xpm));
     m_rotGroup = new QActionGroup(this);
-    QAction * r0 = menuLook->addAction(tr("North-West"), this, SLOT(slotRotate()), QKeySequence(tr("U", "North-West")));
+    QAction * r0 = m_menuLook->addAction(tr("North-West"), this, SLOT(slotRotate()), QKeySequence(tr("U", "North-West")));
     r0->setProperty("rotation", 0);
     r0->setActionGroup(m_rotGroup);
-    QAction * r1 = menuLook->addAction(tr("South-West"), this, SLOT(slotRotate()), QKeySequence(tr("J", "South-West")));
+    QAction * r1 = m_menuLook->addAction(tr("South-West"), this, SLOT(slotRotate()), QKeySequence(tr("J", "South-West")));
     r1->setProperty("rotation", 1);
     r1->setActionGroup(m_rotGroup);
-    QAction * r2 = menuLook->addAction(tr("North-East"), this, SLOT(slotRotate()), QKeySequence(tr("I", "North-East")));
+    QAction * r2 = m_menuLook->addAction(tr("North-East"), this, SLOT(slotRotate()), QKeySequence(tr("I", "North-East")));
     r2->setProperty("rotation", 2);
     r2->setActionGroup(m_rotGroup);
-    QAction * r3 = menuLook->addAction(tr("South-Eash"), this, SLOT(slotRotate()), QKeySequence(tr("K", "South-East")));
+    QAction * r3 = m_menuLook->addAction(tr("South-Eash"), this, SLOT(slotRotate()), QKeySequence(tr("K", "South-East")));
     r3->setProperty("rotation", 3);
     r3->setActionGroup(m_rotGroup);
-    menuLook->addSeparator();
-    menuLook->addAction(QPixmap(left_xpm), tr("Rotate Left"), this, SLOT(slotRotateLeft()), QKeySequence(tr("L", "Rotate Left")));
-    menuLook->addAction(QPixmap(right_xpm),tr("Rotate Right"), this, SLOT(slotRotateRight()), QKeySequence(tr("R", "Rotate Right")));
+    m_menuLook->addSeparator();
+    m_menuLook->addAction(QPixmap(left_xpm), tr("Rotate Left"), this, SLOT(slotRotateLeft()), QKeySequence(tr("L", "Rotate Left")));
+    m_menuLook->addAction(QPixmap(right_xpm),tr("Rotate Right"), this, SLOT(slotRotateRight()), QKeySequence(tr("R", "Rotate Right")));
 
-    menuColor = new QMenu(tr("Copy Color"), this);
+    m_menuColor = new QMenu(tr("Copy Color"), this);
     m_colorGroup = new QActionGroup(this);
-    QAction * c0 = menuColor->addAction(m_colorStringDecimal, this, SLOT(slotColorToClipboard()));
+    QAction * c0 = m_menuColor->addAction(m_colorStringDecimal, this, SLOT(slotColorToClipboard()));
     c0->setActionGroup(m_colorGroup);
     c0->setProperty("id", 0);
-    QAction * c1 = menuColor->addAction(m_colorStringHexaLower, this, SLOT(slotColorToClipboard()));
+    QAction * c1 = m_menuColor->addAction(m_colorStringHexaLower, this, SLOT(slotColorToClipboard()));
     c1->setActionGroup(m_colorGroup);
     c1->setProperty("id", 1);
-    QAction * c2 = menuColor->addAction(m_colorStringHexaUpper, this, SLOT(slotColorToClipboard()));
+    QAction * c2 = m_menuColor->addAction(m_colorStringHexaUpper, this, SLOT(slotColorToClipboard()));
     c2->setActionGroup(m_colorGroup);
     c2->setProperty("id", 2);
 
-    menu->addMenu(menuZoom);
-    menu->addMenu(menuLook);
-    menu->addMenu(menuColor);
-    menu->addAction(QPixmap(help_xpm), tr("Help"), this, SLOT(slotHelp()), QKeySequence(tr("H", "Help")));
-    menu->addSeparator();
-    menu->addAction(tr("About Quax"), this, SLOT(slotAbout()));
-    menu->addAction(tr("About Qt"), this, SLOT(slotAboutQt()));
-    menu->addSeparator();
-    menu->addAction(QPixmap(exit_xpm),tr("Quit"), qApp, SLOT(quit()), QKeySequence(tr("Q", "Quit")));
+    m_menu = new QMenu(this);
+    m_menu->addMenu(m_menuZoom);
+    m_menu->addMenu(m_menuLook);
+    m_menu->addMenu(m_menuColor);
+    m_menu->addAction(QPixmap(help_xpm), tr("Help"), this, SLOT(slotHelp()), QKeySequence(tr("H", "Help")));
+    m_menu->addSeparator();
+    m_menu->addAction(tr("About Quax"), this, SLOT(slotAbout()));
+    m_menu->addAction(tr("About Qt"), this, SLOT(slotAboutQt()));
+    m_menu->addSeparator();
+    m_menu->addAction(QPixmap(exit_xpm),tr("Quit"), qApp, SLOT(quit()), QKeySequence(tr("Q", "Quit")));
+    connect(m_menu, SIGNAL(aboutToShow()), this, SLOT(slotUpdateColorMenu()));
 
     m_zoomGroup->actions().first()->setChecked(true);
     m_rotGroup->actions().at(1)->setChecked(true);
-    connect(menu, SIGNAL(aboutToShow()), this, SLOT(slotUpdateColorMenu()));
     
     // set the color tooltip
     m_colorTip = new QTextBrowser;
@@ -133,7 +133,6 @@ Quax::Quax()
     setMouseTracking(true);
     startTimer(UPDATE);
 }
-
 
 Quax::~Quax()
 {
@@ -314,11 +313,11 @@ void Quax::mousePressEvent(QMouseEvent *e)
             } else {
                 grabMouse(Qt::PointingHandCursor);
                 m_inDrag = true;
-                dragOffset = QCursor::pos() - QPoint(geometry().left(),geometry().top());
+                m_dragOffset = QCursor::pos() - QPoint(geometry().left(),geometry().top());
             }
             break;
         case Qt::RightButton:
-            menu->popup(QCursor::pos());
+            m_menu->popup(QCursor::pos());
             break;
         default:
             break;
@@ -330,7 +329,7 @@ void Quax::mouseMoveEvent(QMouseEvent *)
     if (m_colorTipEnabled)
         genColorTip();
     if (m_inDrag && this == mouseGrabber())
-        move(QCursor::pos() - dragOffset);
+        move(QCursor::pos() - m_dragOffset);
 }
 
 void Quax::mouseReleaseEvent(QMouseEvent *e)
@@ -377,12 +376,15 @@ void Quax::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Plus:
             slotZoomIn();
             break;
+        case Qt::Key_R:
+            slotRotateRight();
+            break;
         case Qt::Key_Underscore:
         case Qt::Key_Minus:
             slotZoomOut();
             break;
         default:
-            e->ignore();
+            QWidget::keyPressEvent(e);
             return;
     }
     if (e->modifiers() & Qt::ShiftModifier)
@@ -399,6 +401,7 @@ void Quax::keyReleaseEvent(QKeyEvent *e)
             setCursor(Qt::PointingHandCursor);
         }
     }
+    QWidget::keyReleaseEvent(e);
 }
 
 void Quax::slotHelp()
@@ -414,7 +417,7 @@ void Quax::slotHelp()
 
 void Quax::slotAbout()
 {
-    QMessageBox::about(this, tr("About Quax %1").arg(QUAX_VERSION "-" QUAX_RELEASE), tr(
+    QMessageBox::about(this, tr("About Quax %1").arg(qApp->applicationVersion()), tr(
             "<p><b>Quax</b> is a little magnifing tool for X. Quax homepage is "
             "at <tt>&lt;http://www.ro.kde.org/quax/&gt;</tt>."
             "</p><p>This is Quax version %1."
@@ -426,7 +429,7 @@ void Quax::slotAbout()
             "<dd>porting to Qt4 and cleanups</dd>"
             "<dt><nobr>Vlad Oancea <tt>&lt;xtrim@fx.ro&gt;</tt></nobr></dt>"
             "<dd>Quax skin design</dd>"
-            "</dl></p>").arg(QUAX_VERSION "-" QUAX_RELEASE));
+            "</dl></p>").arg(qApp->applicationVersion()));
 }
 
 void Quax::slotAboutQt()
@@ -518,7 +521,7 @@ void Quax::slotColorToClipboard()
 void Quax::slotUpdateColorMenu()
 {
     grabForPixel();
-    menuColor->setIcon(QIcon(m_colorPixmap));
+    m_menuColor->setIcon(QIcon(m_colorPixmap));
     m_colorGroup->actions().at(0)->setText(m_colorStringDecimal);
     m_colorGroup->actions().at(1)->setText(m_colorStringHexaLower);
     m_colorGroup->actions().at(2)->setText(m_colorStringHexaUpper);
