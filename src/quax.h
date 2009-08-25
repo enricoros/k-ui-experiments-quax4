@@ -17,7 +17,6 @@
 
 #include <qglobal.h>
 
-#include <qcursor.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qimage.h>
@@ -43,7 +42,7 @@
 #define QUAX_VERSION "1.0"
 #define QUAX_RELEASE "1"
 
-#define PIX_CURSOR_SCALE 10
+//#define PIX_CURSOR_SCALE 10
 #define ZOOM_SCALE_MIN 2
 #define ZOOM_SCALE_MAX 5
 
@@ -81,11 +80,11 @@ class Quax : public QWidget
     protected:
         /**
          * Show color tooltip when mouse enter Quax area, and set
-         * the @p cursorOverQuax flag.
+         * the @p m_cursorOverQuax flag.
          */
         void enterEvent(QEvent *e);
         /**
-         * Hide color tooltip if shown, and set the @p cursorOverQuax flag.
+         * Hide color tooltip if shown, and set the @p m_cursorOverQuax flag.
          */
         void leaveEvent(QEvent *e);
         /**
@@ -100,7 +99,7 @@ class Quax : public QWidget
         /**
          * Executed when user release move the mouse. If the color tip is enabled,
          * then displayed color is updated as well the tooltip position.
-         * If is @p inDrag is true, then Quax position is updated (dragged)
+         * If is @p m_inDrag is true, then Quax position is updated (dragged)
          * to that of mouse position.
          */
         void mouseMoveEvent(QMouseEvent *e);
@@ -130,32 +129,29 @@ class Quax : public QWidget
         void wheelEvent(QWheelEvent *e);
 
     private:
-        QString colorStringDecimal,   ///< the current color under mouse as decimals comma seperated
-                colorStringHexaLower, ///< the current color under mouse as web RGB with lower hexadecimals
-                colorStringHexaUpper; ///< the current color under mouse as web RGB with upper hexadecimals
-        QIcon *pixelColorIcon; ///< The icon set which is used in QML content from @ref colorTip
+        QString m_colorStringDecimal,   ///< the current color under mouse as decimals comma seperated
+                m_colorStringHexaLower, ///< the current color under mouse as web RGB with lower hexadecimals
+                m_colorStringHexaUpper; ///< the current color under mouse as web RGB with upper hexadecimals
+        QIcon *m_pixelColorIcon; ///< The icon set which is used in QML content from @ref colorTip
         QLabel *colorTip; ///< The tool tip for displaying current color under mouse
         QMenu *menu, ///< The main menu of Quax
-              *menuzoom, ///< Menu for zoom levels and zoom in and zoom out items
-              *menulook,  ///< The "Look at" menu
-              *menucolor; ///< Menu for coying textual representation into clipboard
+              *menuZoom, ///< Menu for zoom levels and zoom in and zoom out items
+              *menuLook,  ///< The "Look at" menu
+              *menuColor; ///< Menu for coying textual representation into clipboard
         QPixmap pix,        ///< Quax skin image
                 pix_alpha,  ///< Quax alpha mask for skin image
                 pix_zoom,   ///< The grabbed image zoomend and clipped
                 pix_cursor; ///< The icon used in color menu item and color tooltip
-        QCursor hand_cursor,  ///< normal mouse cursor when mouse pointer is over Quax
-                cross_cursor, ///< cursor when color tooltip is displayed (cross)
-                copy_cursor;  ///< cursor when user "take a shot" of current color
-        bool inDrag,         ///< if true, the user is dragging the Quax
-             colorTipShowed, ///< if true, the color tooltip is displayed
-             cursorOverQuax, ///< if true, mouse cursor is over Quax surface
-             ctrlKeyOn;      ///< if true, the Ctrl key is pressed down
+        bool m_inDrag,         ///< if true, the user is dragging the Quax
+             m_colorTipShowed, ///< if true, the color tooltip is displayed
+             m_cursorOverQuax, ///< if true, mouse cursor is over Quax surface
+             m_ctrlKeyOn;      ///< if true, the Ctrl key is pressed down
+        int m_zoom, ///< current zoom level
+            m_lookAt; ///< current quadrant direction where Quax "look at"
         QPoint dragOffset;   ///< the offset between Quax position and new mouse position
         QMap<int,int> zoomid,  ///< mapping between zoom level and @ref menuzoom menu item ids
                       lookid,  ///< mapping between look direction and @ref menulook menu item ids
                       colorid; ///< mapping between text color type and @ref menucolor menu item ids
-        int zoom, ///< current zoom level
-            look; ///< current quadrant direction where Quax "look at"
 
         /**
          * It grab desktop area, scale it, clip it with circle region,

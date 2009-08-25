@@ -54,129 +54,85 @@
 #include <QDesktopWidget>
 
 
-Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_TopLevel) {
+Quax::Quax()
+  : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_TopLevel)
+  , m_colorStringDecimal("255, 255, 255")
+  , m_colorStringHexaLower("#ffffff")
+  , m_colorStringHexaUpper("#FFFFFF")
+  , m_pixelColorIcon(new QIcon)
+  , m_inDrag(false)
+  , m_colorTipShowed(false)
+  , m_cursorOverQuax(false)
+  , m_ctrlKeyOn(false)
+  , m_zoom(ZOOM_SCALE_MIN)
+  , m_lookAt(0)
+{
+    // customize looks
+    //setAttribute(Qt::WA_NoSystemBackground);
+    setFixedSize(150, 150);
+    setCursor(Qt::PointingHandCursor);
+    setIcon(QPixmap(icon_xpm));
 
-    QPixmap icon=QPixmap(icon_xpm);
-    setIcon(icon);
-
-#ifdef _OS_WIN32_
-    hand_cursor = QCursor(Qt::ArrowCursor);
-#else
-    // "borrowed" from kcursor.cpp from kdelibs
-    static const unsigned char HAND_BITS[] = {
-        0x80, 0x01, 0x00, 0x40, 0x02, 0x00, 0x40, 0x02, 0x00, 0x40, 0x02,
-        0x00, 0x40, 0x02, 0x00, 0x40, 0x02, 0x00, 0x40, 0x1e, 0x00, 0x40,
-        0xf2, 0x00, 0x40, 0x92, 0x01, 0x70, 0x92, 0x02, 0x50, 0x92, 0x04,
-        0x48, 0x80, 0x04, 0x48, 0x00, 0x04, 0x48, 0x00, 0x04, 0x08, 0x00,
-        0x04, 0x08, 0x00, 0x04, 0x10, 0x00, 0x04, 0x10, 0x00, 0x04, 0x20,
-        0x00, 0x02, 0x40, 0x00, 0x02, 0x40, 0x00, 0x01, 0xc0, 0xff, 0x01
-    };
-    static const unsigned char HAND_MASK_BITS[] = {
-        0x80, 0x01, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03,
-        0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x1f, 0x00, 0xc0,
-        0xff, 0x00, 0xc0, 0xff, 0x01, 0xf0, 0xff, 0x03, 0xf0, 0xff, 0x07,
-        0xf8, 0xff, 0x07, 0xf8, 0xff, 0x07, 0xf8, 0xff, 0x07, 0xf8, 0xff,
-        0x07, 0xf8, 0xff, 0x07, 0xf0, 0xff, 0x07, 0xf0, 0xff, 0x07, 0xe0,
-        0xff, 0x03, 0xc0, 0xff, 0x03, 0xc0, 0xff, 0x01, 0xc0, 0xff, 0x01
-    };
-    QBitmap hand_bitmap(22, 22, HAND_BITS, true);
-    QBitmap hand_mask(22, 22, HAND_MASK_BITS, true);
-    hand_cursor = QCursor(hand_bitmap, hand_mask, 7, 0);
-#endif
-
-#if QT_VERSION >= 300
-    cross_cursor = QCursor(Qt::CrossCursor);
-    copy_cursor = QCursor(Qt::SizeAllCursor);
-#else
-
-    cross_cursor = QCursor(CrossCursor);
-    copy_cursor = QCursor(SizeAllCursor);
-#endif
-    setCursor(hand_cursor);
-
-    // fix the size
-    setMinimumHeight(150);
-    setMaximumHeight(150);
-    setMinimumWidth(150);
-    setMaximumWidth(150);
-    /// setBackgroundMode(NoBackground);
-
-    // set the shape
-    pix=QPixmap(mag_xpm);
-    pix_alpha=QPixmap(mag_alpha_xpm);
-    /// setMask(*pix_alpha.mask());
-#if QT_VERSION > 300
-    setErasePixmap(pix);
-#else
-    setBackgroundPixmap(pix);
-#endif
-
+    // set the background image and shape
+    pix = QPixmap(mag_xpm);
+    QPalette pal;
+    pal.setBrush(QPalette::Window, pix);
+    setAutoFillBackground(true);
+    setPalette(pal);
+    pix_alpha = QPixmap(mag_alpha_xpm);
+    setMask(pix_alpha.mask());
 
     pix_cursor.resize(14,14);
-    pixelColorIcon = new QIcon();
-    colorStringDecimal = QString("255, 255, 255");
-    colorStringHexaLower = QString("#ffffff");
-    colorStringHexaUpper = QString("#FFFFFF");
     
-    colorTipShowed=false;
-    cursorOverQuax=false;
-    ctrlKeyOn=false;
-    zoom=ZOOM_SCALE_MIN;
-    inDrag=0;
-    look=0;
-
-
     // build RMB popup menu
     menu = new QMenu(this);
-
-    menuzoom = new QMenu(this);
-    menuzoom->setCheckable(true);
-    for (int i=ZOOM_SCALE_MIN; i<=ZOOM_SCALE_MAX; i++) {
-        zoomid[i]=menuzoom->insertItem(QObject::tr("1:%1").arg(i),this,SLOT(zoomTo(int)));
-    }
-    menuzoom->insertSeparator();
+    menuZoom = new QMenu(this);
+    menuZoom->setCheckable(true);
+    for (int i = ZOOM_SCALE_MIN; i <= ZOOM_SCALE_MAX; i++)
+        zoomid[i]=menuZoom->insertItem(tr("1:%1").arg(i), this, SLOT(zoomTo(int)));
+    menuZoom->addSeparator();
 #if QT_VERSION >= 300
-    menuzoom->insertItem(QPixmap(viewmagin_xpm),QObject::tr("Zoom In"),this,SLOT(zoomIn()),QKeySequence(QObject::tr("+","Zoom In")));
-    menuzoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),QKeySequence(QObject::tr("-","Zoom Out")));
+    menuZoom->insertItem(QPixmap(viewmagin_xpm),QObject::tr("Zoom In"),this,SLOT(zoomIn()),QKeySequence(QObject::tr("+","Zoom In")));
+    menuZoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),QKeySequence(QObject::tr("-","Zoom Out")));
 #else
-    menuzoom->insertItem(QPixmap(viewmagin_xpm),QObject::tr("Zoom In"),this,SLOT(zoomIn()),Q3Accel::stringToKey(QObject::tr("+","Zoom In")));
-    menuzoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),Q3Accel::stringToKey(QObject::tr("-","Zoom Out")));
+    menuZoom->insertItem(QPixmap(viewmagin_xpm),QObject::tr("Zoom In"),this,SLOT(zoomIn()),Q3Accel::stringToKey(QObject::tr("+","Zoom In")));
+    menuZoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),Q3Accel::stringToKey(QObject::tr("-","Zoom Out")));
 #endif
 
-    menulook = new QMenu(this);
-    menulook->setCheckable(true);
+    menuLook = new QMenu(this);
+    menuLook->setCheckable(true);
 #if QT_VERSION >= 300
-    lookid[1]=menulook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),QKeySequence(QObject::tr("U","North-West")));
-    lookid[0]=menulook->insertItem(QObject::tr("South-West"),this,SLOT(rotateSouthWest()),QKeySequence(QObject::tr("J","South-West")));
-    lookid[2]=menulook->insertItem(QObject::tr("North-East"),this,SLOT(rotateNorthEast()),QKeySequence(QObject::tr("I","North-East")));
-    lookid[3]=menulook->insertItem(QObject::tr("South-East"),this,SLOT(rotateSouthEast()),QKeySequence(QObject::tr("K","South-East")));
+    lookid[1]=menuLook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),QKeySequence(QObject::tr("U","North-West")));
+    lookid[0]=menuLook->insertItem(QObject::tr("South-West"),this,SLOT(rotateSouthWest()),QKeySequence(QObject::tr("J","South-West")));
+    lookid[2]=menuLook->insertItem(QObject::tr("North-East"),this,SLOT(rotateNorthEast()),QKeySequence(QObject::tr("I","North-East")));
+    lookid[3]=menuLook->insertItem(QObject::tr("South-East"),this,SLOT(rotateSouthEast()),QKeySequence(QObject::tr("K","South-East")));
 #else
-    lookid[1]=menulook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),Q3Accel::stringToKey(QObject::tr("u","North-West")));
-    lookid[0]=menulook->insertItem(QObject::tr("South-West"),this,SLOT(rotateSouthWest()),Q3Accel::stringToKey(QObject::tr("j","South-West")));
-    lookid[2]=menulook->insertItem(QObject::tr("North-East"),this,SLOT(rotateNorthEast()),Q3Accel::stringToKey(QObject::tr("i","North-East")));
-    lookid[3]=menulook->insertItem(QObject::tr("South-East"),this,SLOT(rotateSouthEast()),Q3Accel::stringToKey(QObject::tr("k","South-East")));
+    lookid[1]=menuLook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),Q3Accel::stringToKey(QObject::tr("u","North-West")));
+    lookid[0]=menuLook->insertItem(QObject::tr("South-West"),this,SLOT(rotateSouthWest()),Q3Accel::stringToKey(QObject::tr("j","South-West")));
+    lookid[2]=menuLook->insertItem(QObject::tr("North-East"),this,SLOT(rotateNorthEast()),Q3Accel::stringToKey(QObject::tr("i","North-East")));
+    lookid[3]=menuLook->insertItem(QObject::tr("South-East"),this,SLOT(rotateSouthEast()),Q3Accel::stringToKey(QObject::tr("k","South-East")));
 #endif
-    menulook->insertSeparator();
+    menuLook->insertSeparator();
 #if QT_VERSION >= 300
-    menulook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),QKeySequence(QObject::tr("L","Rotate Left")));
-    menulook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),QKeySequence(QObject::tr("R","Rotate Right")));
+    menuLook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),QKeySequence(QObject::tr("L","Rotate Left")));
+    menuLook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),QKeySequence(QObject::tr("R","Rotate Right")));
 #else
-    menulook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),Q3Accel::stringToKey(QObject::tr("l","Rotate Left")));
-    menulook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),Q3Accel::stringToKey(QObject::tr("r","Rotate Right")));
+    menuLook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),Q3Accel::stringToKey(QObject::tr("l","Rotate Left")));
+    menuLook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),Q3Accel::stringToKey(QObject::tr("r","Rotate Right")));
 #endif
 
-    menucolor = new QMenu(this);
-    colorid[1]=menucolor->insertItem(colorStringDecimal,this,SLOT(copyColor(int)));
+    menuColor = new QMenu(this);
+    colorid[1]=menuColor->insertItem(m_colorStringDecimal,this,SLOT(copyColor(int)));
 #if QT_VERSION >= 300
-    colorid[2]=menucolor->insertItem(colorStringHexaLower,this,SLOT(copyColor(int)),QKeySequence(QObject::tr("Ctrl+C","Copy Color")));
+    colorid[2]=menuColor->insertItem(m_colorStringHexaLower,this,SLOT(copyColor(int)),QKeySequence(QObject::tr("Ctrl+C","Copy Color")));
 #else
-    colorid[2]=menucolor->insertItem(colorStringHexaLower,this,SLOT(copyColor(int)),Q3Accel::stringToKey(QObject::tr("Ctrl+c","Copy Color")));
+    colorid[2]=menuColor->insertItem(m_colorStringHexaLower,this,SLOT(copyColor(int)),Q3Accel::stringToKey(QObject::tr("Ctrl+c","Copy Color")));
 #endif
-    colorid[3]=menucolor->insertItem(colorStringHexaUpper,this,SLOT(copyColor(int)));
+    colorid[3]=menuColor->insertItem(m_colorStringHexaUpper,this,SLOT(copyColor(int)));
 
-    menu->insertItem(QPixmap(viewmag_xpm),QObject::tr("Zoom"),menuzoom);
-    menu->insertItem(QPixmap(look_xpm),QObject::tr("Look At"),menulook);
-    colorid[0]=menu->insertItem(pix_cursor,QObject::tr("Copy Color"),menucolor);
+    menu->insertItem(QPixmap(viewmag_xpm),QObject::tr("Zoom"),menuZoom);
+    menu->insertItem(QPixmap(look_xpm),QObject::tr("m_lookAt At"),menuLook);
+    colorid[0]=menu->insertItem(pix_cursor,QObject::tr("Copy Color"),menuColor);
 #if QT_VERSION >= 300
     menu->insertItem(QPixmap(help_xpm),QObject::tr("Help"),this,SLOT(help()),QKeySequence(QObject::tr("H","Help")));
 #else
@@ -192,9 +148,9 @@ Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_To
     menu->insertItem(QPixmap(exit_xpm),QObject::tr("Quit"),qApp,SLOT(quit()),Q3Accel::stringToKey(QObject::tr("q","Quit")));
 #endif
 
-    menuzoom->setItemChecked(zoomid[zoom],true);
-    menulook->setItemChecked(lookid[look],true);
-    connect(menu,SIGNAL(aboutToShow()),this,SLOT(updateMenuColor()));
+    menuZoom->setItemChecked(zoomid[m_zoom],true);
+    menuLook->setItemChecked(lookid[m_lookAt],true);
+    connect(menu,SIGNAL(aboutToShow()),this,SLOT(updatemenuColor()));
     
     // set the color tooltip
     colorTip = new QLabel; /// (0,0,WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM);
@@ -209,7 +165,6 @@ Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_To
 #endif
     /// colorTip->setAutoResize(true);
     colorTip->setFrameStyle(Q3Frame::Box | Q3Frame::Plain);
-    colorTip->setPalette(QToolTip::palette());
     colorTip->setTextFormat(Qt::RichText);
 
     
@@ -226,8 +181,8 @@ Quax::~Quax() {
 void Quax::enterEvent(QEvent *e) {
     e=e;
 
-    cursorOverQuax=true;
-    if (colorTipShowed && colorTip->isHidden()) {
+    m_cursorOverQuax=true;
+    if (m_colorTipShowed && colorTip->isHidden()) {
         displayColorTip();
     }
 }
@@ -236,8 +191,8 @@ void Quax::enterEvent(QEvent *e) {
 void Quax::leaveEvent(QEvent *e) {
     e=e;
 
-    cursorOverQuax=false;
-    if (colorTipShowed) {
+    m_cursorOverQuax=false;
+    if (m_colorTipShowed) {
         colorTip->hide();
     }
 }
@@ -277,7 +232,7 @@ void Quax::timerEvent(QTimerEvent *e) {
 }
 
 void Quax::wheelEvent(QWheelEvent *e) {
-    if (ctrlKeyOn) {
+    if (m_ctrlKeyOn) {
         if (e->delta()>0) {
             rotateLeft();
         } else {
@@ -291,7 +246,7 @@ void Quax::wheelEvent(QWheelEvent *e) {
         }
     }
     e->accept();
-    if (colorTipShowed && ! colorTip->isHidden()) {
+    if (m_colorTipShowed && ! colorTip->isHidden()) {
         displayColorTip();
     }
 }
@@ -301,9 +256,9 @@ void Quax::grab() {
     int x, y, w, h;
     int grabX, grabY, grabW, grabH, ofsX, ofsY;
 
-    w = SHAPE_INNER_WIDTH/zoom;
-    h = SHAPE_INNER_HEIGHT/zoom;
-    switch (look) {
+    w = SHAPE_INNER_WIDTH/m_zoom;
+    h = SHAPE_INNER_HEIGHT/m_zoom;
+    switch (m_lookAt) {
     case 0: // South-West
         x=this->x()-w;
         y=this->y()+height();
@@ -323,7 +278,7 @@ void Quax::grab() {
     default:
         x=this->x();
         y=this->y();
-        qWarning("look=%d: This must not happen",look);
+        qWarning("m_lookAt=%d: This must not happen",m_lookAt);
     }
 
     // calculate grab surface to avoid garbage
@@ -365,7 +320,7 @@ void Quax::grab() {
     p.end();
 
     QMatrix m;
-    m.scale((double)zoom,(double)zoom);
+    m.scale((double)m_zoom,(double)m_zoom);
     pix_zoom=pix_grab.xForm(m);
     repaint(false);
 }
@@ -375,11 +330,11 @@ void Quax::grabForPixel() {
     QPixmap pix_grab = QPixmap::grabWindow(QApplication::desktop()->winId(),QCursor::pos().x()-1,QCursor::pos().y()-1,1,1);
     QImage img_grab = pix_grab.convertToImage();
     QRgb rgb_color = img_grab.pixel(0,0);
-    colorStringDecimal = QString::number(qRed(rgb_color)) + ", " +
+    m_colorStringDecimal = QString::number(qRed(rgb_color)) + ", " +
                          QString::number(qGreen(rgb_color)) + ", " +
                          QString::number(qBlue(rgb_color));
-    colorStringHexaLower.sprintf("#%02x%02x%02x",qRed(rgb_color),qGreen(rgb_color),qBlue(rgb_color));
-    colorStringHexaUpper = colorStringHexaLower.upper();
+    m_colorStringHexaLower.sprintf("#%02x%02x%02x",qRed(rgb_color),qGreen(rgb_color),qBlue(rgb_color));
+    m_colorStringHexaUpper = m_colorStringHexaLower.upper();
 
     // make a little pixmap with grabbed color
     QMatrix m;
@@ -392,7 +347,7 @@ void Quax::displayColorTip() {
     /*
   grabForPixel();
   Q3MimeSourceFactory::defaultFactory()->setPixmap("pixel",pix_cursor);    
-  colorTip->setText("<qml>&nbsp;<img height=\"14\" width=\"14\" src=\"pixel\">&nbsp;<tt>" + colorStringHexaUpper + "</tt></qml>");
+  colorTip->setText("<qml>&nbsp;<img height=\"14\" width=\"14\" src=\"pixel\">&nbsp;<tt>" + m_colorStringHexaUpper + "</tt></qml>");
   
   int x_pos, y_pos;
   int x_ofs=7, y_ofs=5;
@@ -419,12 +374,12 @@ void Quax::displayColorTip() {
 void Quax::mousePressEvent(QMouseEvent *e) {
     switch (e->button()) {
     case Qt::LeftButton:
-        if (colorTipShowed) {
+        if (m_colorTipShowed) {
             copyColor(0);
-            setCursor(copy_cursor);
+            setCursor(Qt::SizeAllCursor);
         } else {
-            grabMouse(hand_cursor);
-            inDrag=true;
+            grabMouse(Qt::PointingHandCursor);
+            m_inDrag=true;
             dragOffset = QCursor::pos() - QPoint(geometry().left(),geometry().top());
         }
         break;
@@ -439,11 +394,11 @@ void Quax::mousePressEvent(QMouseEvent *e) {
 void Quax::mouseReleaseEvent(QMouseEvent *e) {
     switch (e->button()) {
     case Qt::LeftButton:
-        if (colorTipShowed) {
-            setCursor(cross_cursor);
+        if (m_colorTipShowed) {
+            setCursor(Qt::CrossCursor);
         } else {
             releaseMouse();
-            inDrag=false;
+            m_inDrag=false;
         }
         break;
     default:
@@ -454,25 +409,25 @@ void Quax::mouseReleaseEvent(QMouseEvent *e) {
 void Quax::mouseMoveEvent(QMouseEvent *e) {
     e=e;
     
-    if (colorTipShowed && cursorOverQuax) {
+    if (m_colorTipShowed && m_cursorOverQuax) {
         displayColorTip();
     }
-    if (!inDrag || this != mouseGrabber()) return;
+    if (!m_inDrag || this != mouseGrabber()) return;
     move(QCursor::pos()-dragOffset);
 }
 
 
 void Quax::keyReleaseEvent(QKeyEvent *e) {
-    if (ctrlKeyOn) {
+    if (m_ctrlKeyOn) {
         if (!(e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control)) {
-            ctrlKeyOn=false;
+            m_ctrlKeyOn=false;
         }
     }
     
-    if (colorTipShowed) {
+    if (m_colorTipShowed) {
         if (e->key() == Qt::Key_Control ||e->key() == Qt::Key_Shift) {
-            colorTipShowed=false;
-            setCursor(hand_cursor);
+            m_colorTipShowed=false;
+            setCursor(Qt::PointingHandCursor);
             colorTip->hide();
         }
     }
@@ -482,17 +437,17 @@ void Quax::keyPressEvent(QKeyEvent *e) {
     QPoint dist(0,0);
 
     if (!(e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control)) {
-        ctrlKeyOn=true;
+        m_ctrlKeyOn=true;
         e->ignore();
         return;
     }
 
-    if (!colorTipShowed) {
+    if (!m_colorTipShowed) {
         if (((e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control)) ||
             ((e->state() & Qt::ControlButton) && (e->key() == Qt::Key_Shift))) {
-            colorTipShowed=true;
-            ctrlKeyOn=false;
-            setCursor(cross_cursor);
+            m_colorTipShowed=true;
+            m_ctrlKeyOn=false;
+            setCursor(Qt::CrossCursor);
             displayColorTip();
             e->ignore();
             return;
@@ -571,79 +526,79 @@ void Quax::aboutQt() {
 }
 
 void Quax::zoomIn() {
-    if (zoom < ZOOM_SCALE_MAX) {
-        menuzoom->setItemChecked(zoomid[zoom],false);
-        zoom++;
-        menuzoom->setItemChecked(zoomid[zoom],true);
+    if (m_zoom < ZOOM_SCALE_MAX) {
+        menuZoom->setItemChecked(zoomid[m_zoom],false);
+        m_zoom++;
+        menuZoom->setItemChecked(zoomid[m_zoom],true);
     }
 }
 
 void Quax::zoomOut() {
-    if (zoom > ZOOM_SCALE_MIN) {
-        menuzoom->setItemChecked(zoomid[zoom],false);
-        zoom--;
-        menuzoom->setItemChecked(zoomid[zoom],true);
+    if (m_zoom > ZOOM_SCALE_MIN) {
+        menuZoom->setItemChecked(zoomid[m_zoom],false);
+        m_zoom--;
+        menuZoom->setItemChecked(zoomid[m_zoom],true);
     }
 }
 
 void Quax::zoomTo(int pos) {
-    for (int i=ZOOM_SCALE_MIN;i<=ZOOM_SCALE_MAX;i++)
+    for (int i = ZOOM_SCALE_MIN; i <= ZOOM_SCALE_MAX; i++)
         if (zoomid[i]==pos) {
-        menuzoom->setItemChecked(zoomid[i],true);
-        zoom=i;
-    } else {
-        menuzoom->setItemChecked(zoomid[i],false);
-    }
+            menuZoom->setItemChecked(zoomid[i],true);
+            m_zoom=i;
+        } else {
+            menuZoom->setItemChecked(zoomid[i],false);
+        }
 }
 
 void Quax::rotateNorthWest() {
-    menulook->setItemChecked(lookid[look],false);
-    look=1;
-    menulook->setItemChecked(lookid[look],true);
-    rotate(look);
+    menuLook->setItemChecked(lookid[m_lookAt],false);
+    m_lookAt=1;
+    menuLook->setItemChecked(lookid[m_lookAt],true);
+    rotate(m_lookAt);
 }
 
 void Quax::rotateSouthWest() {
-    menulook->setItemChecked(lookid[look],false);
-    look=0;
-    menulook->setItemChecked(lookid[look],true);
-    rotate(look);
+    menuLook->setItemChecked(lookid[m_lookAt],false);
+    m_lookAt=0;
+    menuLook->setItemChecked(lookid[m_lookAt],true);
+    rotate(m_lookAt);
 }
 
 void Quax::rotateNorthEast() {
-    menulook->setItemChecked(lookid[look],false);
-    look=2;
-    menulook->setItemChecked(lookid[look],true);
-    rotate(look);
+    menuLook->setItemChecked(lookid[m_lookAt],false);
+    m_lookAt=2;
+    menuLook->setItemChecked(lookid[m_lookAt],true);
+    rotate(m_lookAt);
 }
 
 void Quax::rotateSouthEast() {
-    menulook->setItemChecked(lookid[look],false);
-    look=3;
-    menulook->setItemChecked(lookid[look],true);
-    rotate(look);
+    menuLook->setItemChecked(lookid[m_lookAt],false);
+    m_lookAt=3;
+    menuLook->setItemChecked(lookid[m_lookAt],true);
+    rotate(m_lookAt);
 }
 
 void Quax::rotateLeft() {
-    menulook->setItemChecked(lookid[look],false);
-    if (look==0) {
-        look=3;
+    menuLook->setItemChecked(lookid[m_lookAt],false);
+    if (m_lookAt==0) {
+        m_lookAt=3;
     } else {
-        look--;
+        m_lookAt--;
     }
-    menulook->setItemChecked(lookid[look],true);
-    rotate(look);
+    menuLook->setItemChecked(lookid[m_lookAt],true);
+    rotate(m_lookAt);
 }
 
 void Quax::rotateRight() {
-    menulook->setItemChecked(lookid[look],false);
-    if (look==3) {
-        look=0;
+    menuLook->setItemChecked(lookid[m_lookAt],false);
+    if (m_lookAt==3) {
+        m_lookAt=0;
     } else {
-        look++;
+        m_lookAt++;
     }
-    menulook->setItemChecked(lookid[look],true);
-    rotate(look);
+    menuLook->setItemChecked(lookid[m_lookAt],true);
+    rotate(m_lookAt);
 }
 
 void Quax::rotate(int pos) {
@@ -657,19 +612,19 @@ void Quax::rotate(int pos) {
 void Quax::copyColor(int id) {
 
     if (id == colorid[1] ) {
-        qApp->clipboard()->setText(colorStringDecimal);
+        qApp->clipboard()->setText(m_colorStringDecimal);
     } else if (id == colorid[2]) {
         // this get called when user press Ctrl+C
         //
         // I must call grabForPixel because it's posible that
         // this slot get executed even user doesn't right click
-        // on Quax, so updateMenuColor is not yet called and
+        // on Quax, so updatemenuColor is not yet called and
         // variables may contain old or invalid color
         grabForPixel();
-        qApp->clipboard()->setText(colorStringHexaLower);
+        qApp->clipboard()->setText(m_colorStringHexaLower);
     } else if (id == colorid[3] || id == 0) {
         // id=0 if user click when color tip is displayed
-        qApp->clipboard()->setText(colorStringHexaUpper);
+        qApp->clipboard()->setText(m_colorStringHexaUpper);
     } else {
         qWarning("id=%d: This must not happen",id);
     }
@@ -678,12 +633,12 @@ void Quax::copyColor(int id) {
 void Quax::updateMenuColor() {
     grabForPixel();
 #if QT_VERSION > 300
-    ///pixelColorIcon->clearGenerated();
+    ///m_pixelColorIcon->clearGenerated();
 #endif
-    pixelColorIcon->reset(pix_cursor,QIcon::Small);
+    m_pixelColorIcon->reset(pix_cursor,QIcon::Small);
 
     menu->changeItem(colorid[0],QIcon(pix_cursor),QObject::tr("Copy Color"));
-    menucolor->changeItem(colorid[1],colorStringDecimal);
-    menucolor->changeItem(colorid[2],colorStringHexaLower);
-    menucolor->changeItem(colorid[3],colorStringHexaUpper);
+    menuColor->changeItem(colorid[1],m_colorStringDecimal);
+    menuColor->changeItem(colorid[2],m_colorStringHexaLower);
+    menuColor->changeItem(colorid[3],m_colorStringHexaUpper);
 }
