@@ -38,6 +38,7 @@
 #include <QTimerEvent>
 #include <QKeyEvent>
 #include <QPaintEvent>
+#include <QTextBrowser>
 
 #define QUAX_VERSION "1.0"
 #define QUAX_RELEASE "1"
@@ -131,11 +132,11 @@ class Quax : public QWidget
         QString m_colorStringDecimal,   ///< the current color under mouse as decimals comma seperated
                 m_colorStringHexaLower, ///< the current color under mouse as web RGB with lower hexadecimals
                 m_colorStringHexaUpper; ///< the current color under mouse as web RGB with upper hexadecimals
-        QLabel *m_colorTip; ///< The tool tip for displaying current color under mouse
         QMenu *menu, ///< The main menu of Quax
               *menuZoom, ///< Menu for zoom levels and zoom in and zoom out items
               *menuLook,  ///< The "Look at" menu
               *menuColor; ///< Menu for coying textual representation into clipboard
+        QTextBrowser *m_colorTip; ///< The tool tip for displaying current color under mouse
         QPixmap m_zoomPixmap,  ///< The grabbed image zoomend and clipped
                 m_colorPixmap; ///< The icon used in color menu item and color tooltip
         bool m_inDrag,         ///< if true, the user is dragging the Quax

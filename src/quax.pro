@@ -7,20 +7,10 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-# Input
-HEADERS += quax.h \
-           ../config.h \
-           mag.xpm \
-           mag-alpha.xpm \
-           exit.xpm \
-           viewmag.xpm \
-           viewmagin.xpm \
-           viewmagout.xpm \
-           look.xpm \
-           left.xpm \
-           right.xpm \
-           icon.xpm \
-           help.xpm
-SOURCES += main.cpp quax.cpp
 #The following line was inserted by qt3to4
 QT +=  qt3support
+
+# Input
+HEADERS += quax.h
+SOURCES += main.cpp \
+    quax.cpp

@@ -102,12 +102,12 @@ Quax::Quax()
     connect(menu,SIGNAL(aboutToShow()), this, SLOT(updatemenuColor()));
     
     // set the color tooltip
-    m_colorTip = new QLabel(0, Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::Tool | Qt::X11BypassWindowManagerHint);
-    m_colorTip->setMargin(1);
-    m_colorTip->setIndent(0);
+    m_colorTip = new QTextBrowser;
+    m_colorTip->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::Tool | Qt::X11BypassWindowManagerHint);
     m_colorTip->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     m_colorTip->setFrameStyle(QFrame::Plain | QFrame::Box);
     m_colorTip->setTextFormat(Qt::RichText);
+    m_colorTip->resize(120, 28);
     
     setMouseTracking(true);
     startTimer(UPDATE);
@@ -259,28 +259,27 @@ void Quax::grabForPixel()
     // make a little pixmap with grabbed color
     m_colorPixmap = grabPix.scaled(14, 14);
 }
-#include <Q3MimeSourceFactory>
-#include <QResource>
+
 void Quax::genColorTip()
 {
     grabForPixel();
-    Q3MimeSourceFactory::defaultFactory()->setPixmap("pixel",m_colorPixmap);
-    m_colorTip->setText("<qml>&nbsp;<img height=\"14\" width=\"14\" src=\"pixel\">&nbsp;<tt>" + m_colorStringHexaUpper + "</tt></qml>");
+    m_colorTip->document()->addResource(QTextDocument::ImageResource, QUrl("qrc:/pixel"), m_colorPixmap);
+    m_colorTip->document()->setHtml("<html>&nbsp;<img height=\"14\" width=\"14\" src=\"qrc:/pixel\">&nbsp;<tt>" + m_colorStringHexaUpper + "</tt></html>");
 
     int x_pos, y_pos;
-    int x_ofs=7, y_ofs=5;
-    int x_margin=2, y_margin=2;
+    int x_ofs = 7, y_ofs = 5;
+    int x_margin = 2, y_margin = 2;
     //check if tooltip get outside screen area
     QRect  r = m_colorTip->rect();
     QPoint c = QCursor::pos();
     if (c.x()+r.width()+x_ofs+x_margin > qApp->desktop()->width())
         x_pos = c.x()-r.width()-x_ofs;
     else
-        x_pos=c.x()+x_ofs;
+        x_pos = c.x()+x_ofs;
     if (c.y()-r.height()-y_ofs-y_margin < 0)
-        y_pos=c.y()+y_ofs;
+        y_pos = c.y()+y_ofs;
     else
-        y_pos=c.y()-r.height()-y_ofs;
+        y_pos = c.y()-r.height()-y_ofs;
     m_colorTip->move(x_pos,y_pos);
     m_colorTip->show();
 }
@@ -330,16 +329,6 @@ void Quax::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-void Quax::keyReleaseEvent(QKeyEvent *e)
-{
-    if (m_colorTipEnabled) {
-        if (e->key() == Qt::Key_Control || e->key() == Qt::Key_Shift) {
-            m_colorTipEnabled = false;
-            m_colorTip->hide();
-            setCursor(Qt::PointingHandCursor);
-        }
-    }
-}
 void Quax::keyPressEvent(QKeyEvent *e)
 {
     if (!m_colorTipEnabled && e->modifiers() & Qt::ShiftModifier && e->modifiers() & Qt::ControlModifier) {
@@ -379,6 +368,17 @@ void Quax::keyPressEvent(QKeyEvent *e)
     if (e->modifiers() & Qt::ShiftModifier)
         dist *= 10;
     move(pos() + dist);
+}
+
+void Quax::keyReleaseEvent(QKeyEvent *e)
+{
+    if (m_colorTipEnabled) {
+        if (e->key() == Qt::Key_Control || e->key() == Qt::Key_Shift) {
+            m_colorTipEnabled = false;
+            m_colorTip->hide();
+            setCursor(Qt::PointingHandCursor);
+        }
+    }
 }
 
 void Quax::help()
