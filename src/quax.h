@@ -21,7 +21,6 @@
 #include <qbitmap.h>
 #include <qimage.h>
 #include <qpainter.h>
-#include <qmap.h>
 
 #include <qicon.h>
 #include <qwidget.h>
@@ -43,7 +42,6 @@
 #define QUAX_VERSION "1.0"
 #define QUAX_RELEASE "1"
 
-//#define PIX_CURSOR_SCALE 10
 #define ZOOM_SCALE_MIN 2
 #define ZOOM_SCALE_MAX 5
 
@@ -132,21 +130,21 @@ class Quax : public QWidget
         QString m_colorStringDecimal,   ///< the current color under mouse as decimals comma seperated
                 m_colorStringHexaLower, ///< the current color under mouse as web RGB with lower hexadecimals
                 m_colorStringHexaUpper; ///< the current color under mouse as web RGB with upper hexadecimals
-        QMenu *menu, ///< The main menu of Quax
-              *menuZoom, ///< Menu for zoom levels and zoom in and zoom out items
+        QMenu *menu,      ///< The main menu of Quax
+              *menuZoom,  ///< Menu for zoom levels and zoom in and zoom out items
               *menuLook,  ///< The "Look at" menu
               *menuColor; ///< Menu for coying textual representation into clipboard
+        QActionGroup *m_zoomGroup,
+                     *m_rotGroup,
+                     *m_colorGroup;
         QTextBrowser *m_colorTip; ///< The tool tip for displaying current color under mouse
         QPixmap m_zoomPixmap,  ///< The grabbed image zoomend and clipped
                 m_colorPixmap; ///< The icon used in color menu item and color tooltip
         bool m_inDrag,         ///< if true, the user is dragging the Quax
              m_colorTipEnabled;///< if true, the color tooltip is displayed
-        int m_zoom, ///< current zoom level
-            m_lookAt; ///< current quadrant direction where Quax "look at"
+        int m_zoomLevel, ///< current zoom level
+            m_lookAt;    ///< current quadrant direction where Quax "look at"
         QPoint dragOffset;   ///< the offset between Quax position and new mouse position
-        QMap<int,int> zoomid,  ///< mapping between zoom level and @ref menuzoom menu item ids
-                      lookid,  ///< mapping between look direction and @ref menulook menu item ids
-                      colorid; ///< mapping between text color type and @ref menucolor menu item ids
 
         /**
          * It grabs the desktop area, scale it, clip it with circle region,
@@ -168,54 +166,42 @@ class Quax : public QWidget
         /**
          * Display manual page or open help center according with underling desktop environment.
          */
-        void help();
+        void slotHelp();
         /**
          * Open Quax "about" messagebox with author list and some other
          * usefull information (copyright, version).
          */
-        void about();
+        void slotAbout();
         /**
          * Open Trolltech standard "about" messagebox.
          */
-        void aboutQt();
+        void slotAboutQt();
         /**
          * Scale up grabed desktop area if not at maximum zoom value.
          */
-        void zoomIn();
+        void slotZoomIn();
         /**
          * Scale down grabed desktop area if not at minimum zoom value.
          */
-        void zoomOut();
+        void slotZoomOut();
         /**
          * Zoom grabed desktop area to the @p pos level.
          * @param pos represent position into zoom menu, as well the zoom level
          */
-        void zoomTo(int pos);
+        void slotZoomTo();
         /**
          * Move the Quax point of desktop area grab to the North-West direction.
          * It make use of @ref Quax::rotate
          */
-        void rotateNorthWest();
-        /**
-         * Move the Quax point of desktop area grab to the South-West direction.
-         */
-        void rotateSouthWest();
-        /**
-         * Move the Quax point of desktop area grab to the North-East direction.
-         */
-        void rotateNorthEast();
-        /**
-         * Move the Quax point of desktop area grab to the South-East direction.
-         */
-        void rotateSouthEast();
+        void slotRotate();
         /**
          * Rotate Quax point of desktop area grab to the left (counter-clockwise).
          */
-        void rotateLeft();
+        void slotRotateLeft();
         /**
          * Rotate Quax point of desktop area grab to the right (clockwise).
          */
-        void rotateRight();
+        void slotRotateRight();
         /**
          * Rotate Quax point of desktop area to the @p pos quadrant.
          * @param pos quadrant number (0..3)
@@ -226,14 +212,13 @@ class Quax : public QWidget
          * @p colorStringHexaLower and @p colorStringHexaUpper into system
          * clipboard. For the menu item which handle "Ctrl+C" accelerator, it call
          * @ref grabForPixel() prior to cliboard operation.
-         * @param id the menu identificator to get what color menu item was selected
          */
-        void colorToClipboard(int id);
+        void slotColorToClipboard();
         /**
          * Build the menu left pixmap from the grabed color under mouse. This is slot is
          * called from QPopupMenu::aboutToShow signal.
          */
-        void updateMenuColor();
+        void slotUpdateColorMenu();
 };
 
 #endif

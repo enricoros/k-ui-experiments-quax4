@@ -8,7 +8,7 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 #The following line was inserted by qt3to4
-QT +=  qt3support
+#QT +=  qt3support
 
 # Input
 HEADERS += quax.h
