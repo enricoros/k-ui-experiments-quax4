@@ -23,4 +23,4 @@ HEADERS += quax.h \
            help.xpm
 SOURCES += main.cpp quax.cpp
 #The following line was inserted by qt3to4
-QT +=  qt3support 
+QT +=  qt3support

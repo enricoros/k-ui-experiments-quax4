@@ -46,7 +46,7 @@
 #include <QLabel>
 #include <QPixmap>
 #include <Q3Frame>
-#include <Q3PopupMenu>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QEvent>
 #include <QPaintEvent>
@@ -64,22 +64,22 @@ Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_To
 #else
     // "borrowed" from kcursor.cpp from kdelibs
     static const unsigned char HAND_BITS[] = {
-                0x80, 0x01, 0x00, 0x40, 0x02, 0x00, 0x40, 0x02, 0x00, 0x40, 0x02,
-                0x00, 0x40, 0x02, 0x00, 0x40, 0x02, 0x00, 0x40, 0x1e, 0x00, 0x40,
-                0xf2, 0x00, 0x40, 0x92, 0x01, 0x70, 0x92, 0x02, 0x50, 0x92, 0x04,
-                0x48, 0x80, 0x04, 0x48, 0x00, 0x04, 0x48, 0x00, 0x04, 0x08, 0x00,
-                0x04, 0x08, 0x00, 0x04, 0x10, 0x00, 0x04, 0x10, 0x00, 0x04, 0x20,
-                0x00, 0x02, 0x40, 0x00, 0x02, 0x40, 0x00, 0x01, 0xc0, 0xff, 0x01
-            };
+        0x80, 0x01, 0x00, 0x40, 0x02, 0x00, 0x40, 0x02, 0x00, 0x40, 0x02,
+        0x00, 0x40, 0x02, 0x00, 0x40, 0x02, 0x00, 0x40, 0x1e, 0x00, 0x40,
+        0xf2, 0x00, 0x40, 0x92, 0x01, 0x70, 0x92, 0x02, 0x50, 0x92, 0x04,
+        0x48, 0x80, 0x04, 0x48, 0x00, 0x04, 0x48, 0x00, 0x04, 0x08, 0x00,
+        0x04, 0x08, 0x00, 0x04, 0x10, 0x00, 0x04, 0x10, 0x00, 0x04, 0x20,
+        0x00, 0x02, 0x40, 0x00, 0x02, 0x40, 0x00, 0x01, 0xc0, 0xff, 0x01
+    };
     static const unsigned char HAND_MASK_BITS[] = {
-                0x80, 0x01, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03,
-                0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x1f, 0x00, 0xc0,
-                0xff, 0x00, 0xc0, 0xff, 0x01, 0xf0, 0xff, 0x03, 0xf0, 0xff, 0x07,
-                0xf8, 0xff, 0x07, 0xf8, 0xff, 0x07, 0xf8, 0xff, 0x07, 0xf8, 0xff,
-                0x07, 0xf8, 0xff, 0x07, 0xf0, 0xff, 0x07, 0xf0, 0xff, 0x07, 0xe0,
-                0xff, 0x03, 0xc0, 0xff, 0x03, 0xc0, 0xff, 0x01, 0xc0, 0xff, 0x01
-            };
-	QBitmap hand_bitmap(22, 22, HAND_BITS, true);
+        0x80, 0x01, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03,
+        0x00, 0xc0, 0x03, 0x00, 0xc0, 0x03, 0x00, 0xc0, 0x1f, 0x00, 0xc0,
+        0xff, 0x00, 0xc0, 0xff, 0x01, 0xf0, 0xff, 0x03, 0xf0, 0xff, 0x07,
+        0xf8, 0xff, 0x07, 0xf8, 0xff, 0x07, 0xf8, 0xff, 0x07, 0xf8, 0xff,
+        0x07, 0xf8, 0xff, 0x07, 0xf0, 0xff, 0x07, 0xf0, 0xff, 0x07, 0xe0,
+        0xff, 0x03, 0xc0, 0xff, 0x03, 0xc0, 0xff, 0x01, 0xc0, 0xff, 0x01
+    };
+    QBitmap hand_bitmap(22, 22, HAND_BITS, true);
     QBitmap hand_mask(22, 22, HAND_MASK_BITS, true);
     hand_cursor = QCursor(hand_bitmap, hand_mask, 7, 0);
 #endif
@@ -127,9 +127,9 @@ Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_To
 
 
     // build RMB popup menu
-    menu = new Q3PopupMenu(this);
+    menu = new QMenu(this);
 
-    menuzoom = new Q3PopupMenu(this);
+    menuzoom = new QMenu(this);
     menuzoom->setCheckable(true);
     for (int i=ZOOM_SCALE_MIN; i<=ZOOM_SCALE_MAX; i++) {
         zoomid[i]=menuzoom->insertItem(QObject::tr("1:%1").arg(i),this,SLOT(zoomTo(int)));
@@ -143,7 +143,7 @@ Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_To
     menuzoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),Q3Accel::stringToKey(QObject::tr("-","Zoom Out")));
 #endif
 
-    menulook = new Q3PopupMenu(this);
+    menulook = new QMenu(this);
     menulook->setCheckable(true);
 #if QT_VERSION >= 300
     lookid[1]=menulook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),QKeySequence(QObject::tr("U","North-West")));
@@ -164,8 +164,8 @@ Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_To
     menulook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),Q3Accel::stringToKey(QObject::tr("l","Rotate Left")));
     menulook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),Q3Accel::stringToKey(QObject::tr("r","Rotate Right")));
 #endif
-		
-    menucolor = new Q3PopupMenu(this);
+
+    menucolor = new QMenu(this);
     colorid[1]=menucolor->insertItem(colorStringDecimal,this,SLOT(copyColor(int)));
 #if QT_VERSION >= 300
     colorid[2]=menucolor->insertItem(colorStringHexaLower,this,SLOT(copyColor(int)),QKeySequence(QObject::tr("Ctrl+C","Copy Color")));
@@ -219,27 +219,27 @@ Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_To
 
 
 Quax::~Quax() {
-  delete colorTip;
+    delete colorTip;
 }
 
 
 void Quax::enterEvent(QEvent *e) {
-  e=e;
+    e=e;
 
-  cursorOverQuax=true;
-  if (colorTipShowed && colorTip->isHidden()) {
-    displayColorTip();
-  }
+    cursorOverQuax=true;
+    if (colorTipShowed && colorTip->isHidden()) {
+        displayColorTip();
+    }
 }
 
 
 void Quax::leaveEvent(QEvent *e) {
-  e=e;
+    e=e;
 
-  cursorOverQuax=false;
-  if (colorTipShowed) {
-    colorTip->hide();
-  }
+    cursorOverQuax=false;
+    if (colorTipShowed) {
+        colorTip->hide();
+    }
 }
 
 
@@ -277,23 +277,23 @@ void Quax::timerEvent(QTimerEvent *e) {
 }
 
 void Quax::wheelEvent(QWheelEvent *e) {
-  if (ctrlKeyOn) {
-    if (e->delta()>0) {
-      rotateLeft();
+    if (ctrlKeyOn) {
+        if (e->delta()>0) {
+            rotateLeft();
+        } else {
+            rotateRight();
+        }
     } else {
-      rotateRight();
+        if (e->delta()>0) {
+            zoomIn();
+        } else {
+            zoomOut();
+        }
     }
-  } else {
-    if (e->delta()>0) {
-      zoomIn();
-    } else {
-      zoomOut();
+    e->accept();
+    if (colorTipShowed && ! colorTip->isHidden()) {
+        displayColorTip();
     }
-  }
-  e->accept();
-  if (colorTipShowed && ! colorTip->isHidden()) {
-    displayColorTip();
-  }
 }
 
 void Quax::grab() {
@@ -371,25 +371,25 @@ void Quax::grab() {
 }
 
 void Quax::grabForPixel() {
-  // get the color under cursor
-  QPixmap pix_grab = QPixmap::grabWindow(QApplication::desktop()->winId(),QCursor::pos().x()-1,QCursor::pos().y()-1,1,1);
-  QImage img_grab = pix_grab.convertToImage();
-  QRgb rgb_color = img_grab.pixel(0,0);
-  colorStringDecimal = QString::number(qRed(rgb_color)) + ", " + 
-                       QString::number(qGreen(rgb_color)) + ", " + 
-                       QString::number(qBlue(rgb_color));
-  colorStringHexaLower.sprintf("#%02x%02x%02x",qRed(rgb_color),qGreen(rgb_color),qBlue(rgb_color));
-  colorStringHexaUpper = colorStringHexaLower.upper();
+    // get the color under cursor
+    QPixmap pix_grab = QPixmap::grabWindow(QApplication::desktop()->winId(),QCursor::pos().x()-1,QCursor::pos().y()-1,1,1);
+    QImage img_grab = pix_grab.convertToImage();
+    QRgb rgb_color = img_grab.pixel(0,0);
+    colorStringDecimal = QString::number(qRed(rgb_color)) + ", " +
+                         QString::number(qGreen(rgb_color)) + ", " +
+                         QString::number(qBlue(rgb_color));
+    colorStringHexaLower.sprintf("#%02x%02x%02x",qRed(rgb_color),qGreen(rgb_color),qBlue(rgb_color));
+    colorStringHexaUpper = colorStringHexaLower.upper();
 
-  // make a little pixmap with grabbed color
-  QMatrix m;
-  m.scale((double)14,(double)14);
-  pix_cursor=pix_grab.xForm(m);
+    // make a little pixmap with grabbed color
+    QMatrix m;
+    m.scale((double)14,(double)14);
+    pix_cursor=pix_grab.xForm(m);
 }
 
 void Quax::displayColorTip() {
-return;
-/*
+    return;
+    /*
   grabForPixel();
   Q3MimeSourceFactory::defaultFactory()->setPixmap("pixel",pix_cursor);    
   colorTip->setText("<qml>&nbsp;<img height=\"14\" width=\"14\" src=\"pixel\">&nbsp;<tt>" + colorStringHexaUpper + "</tt></qml>");
@@ -420,12 +420,12 @@ void Quax::mousePressEvent(QMouseEvent *e) {
     switch (e->button()) {
     case Qt::LeftButton:
         if (colorTipShowed) {
-          copyColor(0);
-          setCursor(copy_cursor);
+            copyColor(0);
+            setCursor(copy_cursor);
         } else {
-          grabMouse(hand_cursor);
-          inDrag=true;
-          dragOffset = QCursor::pos() - QPoint(geometry().left(),geometry().top());
+            grabMouse(hand_cursor);
+            inDrag=true;
+            dragOffset = QCursor::pos() - QPoint(geometry().left(),geometry().top());
         }
         break;
     case Qt::RightButton:
@@ -440,10 +440,10 @@ void Quax::mouseReleaseEvent(QMouseEvent *e) {
     switch (e->button()) {
     case Qt::LeftButton:
         if (colorTipShowed) {
-          setCursor(cross_cursor);
+            setCursor(cross_cursor);
         } else {
-          releaseMouse();
-          inDrag=false;
+            releaseMouse();
+            inDrag=false;
         }
         break;
     default:
@@ -455,7 +455,7 @@ void Quax::mouseMoveEvent(QMouseEvent *e) {
     e=e;
     
     if (colorTipShowed && cursorOverQuax) {
-      displayColorTip();
+        displayColorTip();
     }
     if (!inDrag || this != mouseGrabber()) return;
     move(QCursor::pos()-dragOffset);
@@ -464,17 +464,17 @@ void Quax::mouseMoveEvent(QMouseEvent *e) {
 
 void Quax::keyReleaseEvent(QKeyEvent *e) {
     if (ctrlKeyOn) {
-      if (!(e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control)) {
-        ctrlKeyOn=false;
-      }
+        if (!(e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control)) {
+            ctrlKeyOn=false;
+        }
     }
     
     if (colorTipShowed) {
-      if (e->key() == Qt::Key_Control ||e->key() == Qt::Key_Shift) {
-        colorTipShowed=false;
-        setCursor(hand_cursor);
-        colorTip->hide();
-      }
+        if (e->key() == Qt::Key_Control ||e->key() == Qt::Key_Shift) {
+            colorTipShowed=false;
+            setCursor(hand_cursor);
+            colorTip->hide();
+        }
     }
 }
 
@@ -482,45 +482,45 @@ void Quax::keyPressEvent(QKeyEvent *e) {
     QPoint dist(0,0);
 
     if (!(e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control)) {
-      ctrlKeyOn=true;
-      e->ignore();
-      return;
+        ctrlKeyOn=true;
+        e->ignore();
+        return;
     }
 
     if (!colorTipShowed) {
-      if ((e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control) ||
-          (e->state() & Qt::ControlButton) && (e->key() == Qt::Key_Shift)) {
-        colorTipShowed=true;
-        ctrlKeyOn=false;
-        setCursor(cross_cursor);
-        displayColorTip();
-        e->ignore();
-        return;
-      }
+        if (((e->state() & Qt::ShiftButton) && (e->key() == Qt::Key_Control)) ||
+            ((e->state() & Qt::ControlButton) && (e->key() == Qt::Key_Shift))) {
+            colorTipShowed=true;
+            ctrlKeyOn=false;
+            setCursor(cross_cursor);
+            displayColorTip();
+            e->ignore();
+            return;
+        }
     }
 
 
 
     switch (e->key()) {
-      case Qt::Key_Left:
+    case Qt::Key_Left:
         dist.setX(-1);
-      break;
-      case Qt::Key_Right:
+        break;
+    case Qt::Key_Right:
         dist.setX(1);
-      break;
-      case Qt::Key_Up:
+        break;
+    case Qt::Key_Up:
         dist.setY(-1);
-      break;
-      case Qt::Key_Down:
+        break;
+    case Qt::Key_Down:
         dist.setY(1);
-      break;
-		  case Qt::Key_Equal:
-				zoomIn();
-      break;
-		  case Qt::Key_Underscore:
-				zoomOut();
-      break;
-      default:
+        break;
+          case Qt::Key_Equal:
+        zoomIn();
+        break;
+          case Qt::Key_Underscore:
+        zoomOut();
+        break;
+    default:
         e->ignore();
         return;
     }
@@ -534,36 +534,36 @@ void Quax::help() {
 #if QT_VERSION >= 300
 #ifdef _OS_WIN32_
 #else
-  QString helpApp = "kfmclient";
+    QString helpApp = "kfmclient";
 
-  Q3Process *proc = new Q3Process(this);
-  proc->addArgument(helpApp);
-  proc->addArgument("openURL");
-  proc->addArgument("help:quax");
-  proc->closeStdin();
-  if (!proc->start()) {
-    QMessageBox::critical(this,QObject::tr("Help Error"),
-            QObject::tr("<qml>There was an error executing <b>%1</b> application. "
-               "Please check your KDE installation. You may try to open an <b>xterm</b> "
-               "window and run <tt>man quax</tt> from there.</qml>").arg(helpApp),
-            QMessageBox::Ok, Qt::NoButton, Qt::NoButton);
-  }
+    Q3Process *proc = new Q3Process(this);
+    proc->addArgument(helpApp);
+    proc->addArgument("openURL");
+    proc->addArgument("help:quax");
+    proc->closeStdin();
+    if (!proc->start()) {
+        QMessageBox::critical(this,QObject::tr("Help Error"),
+                              QObject::tr("<qml>There was an error executing <b>%1</b> application. "
+                                          "Please check your KDE installation. You may try to open an <b>xterm</b> "
+                                          "window and run <tt>man quax</tt> from there.</qml>").arg(helpApp),
+                              QMessageBox::Ok, Qt::NoButton, Qt::NoButton);
+    }
 #endif
 #endif
 }
 
 void Quax::about() {
-    QMessageBox::about(this,QObject::tr("About Quax %1").arg(VERSION "-" RELEASE),QObject::tr(
-                           "<p><b>Quax</b> is a little magnifing tool for X. Quax homepage is "
-                           "at <tt>&lt;http://www.ro.kde.org/quax/&gt;</tt>."
-                           "</p><p>This is Quax version %1."
-                           "</p><p>This program is released under GNU General Public License."
-                           "<dl>"
-                           "<dt><nobr>Claudiu Costin <tt>&lt;claudiuc@kde.org&gt;</tt></nobr></dt>"
-                           "<dd>coding, documentation, packaging</dd>"
-                           "<dt><nobr>Vlad Oancea <tt>&lt;xtrim@fx.ro&gt;</tt></nobr></dt>"
-                           "<dd>Quax skin design</dd>"
-                           "</dl></p>").arg(VERSION "-" RELEASE));
+    QMessageBox::about(this,QObject::tr("About Quax %1").arg(QUAX_VERSION "-" QUAX_RELEASE),QObject::tr(
+            "<p><b>Quax</b> is a little magnifing tool for X. Quax homepage is "
+            "at <tt>&lt;http://www.ro.kde.org/quax/&gt;</tt>."
+            "</p><p>This is Quax version %1."
+            "</p><p>This program is released under GNU General Public License."
+            "<dl>"
+            "<dt><nobr>Claudiu Costin <tt>&lt;claudiuc@kde.org&gt;</tt></nobr></dt>"
+            "<dd>coding, documentation, packaging</dd>"
+            "<dt><nobr>Vlad Oancea <tt>&lt;xtrim@fx.ro&gt;</tt></nobr></dt>"
+            "<dd>Quax skin design</dd>"
+            "</dl></p>").arg(QUAX_VERSION "-" QUAX_RELEASE));
 }
 
 void Quax::aboutQt() {
@@ -589,11 +589,11 @@ void Quax::zoomOut() {
 void Quax::zoomTo(int pos) {
     for (int i=ZOOM_SCALE_MIN;i<=ZOOM_SCALE_MAX;i++)
         if (zoomid[i]==pos) {
-            menuzoom->setItemChecked(zoomid[i],true);
-            zoom=i;
-        } else {
-            menuzoom->setItemChecked(zoomid[i],false);
-        }
+        menuzoom->setItemChecked(zoomid[i],true);
+        zoom=i;
+    } else {
+        menuzoom->setItemChecked(zoomid[i],false);
+    }
 }
 
 void Quax::rotateNorthWest() {
@@ -655,35 +655,35 @@ void Quax::rotate(int pos) {
 
 
 void Quax::copyColor(int id) {
-  
-  if (id == colorid[1] ) {
-      qApp->clipboard()->setText(colorStringDecimal);
-  } else if (id == colorid[2]) {
-      // this get called when user press Ctrl+C
-      //
-      // I must call grabForPixel because it's posible that
-      // this slot get executed even user doesn't right click
-      // on Quax, so updateMenuColor is not yet called and 
-      // variables may contain old or invalid color
-      grabForPixel();
-      qApp->clipboard()->setText(colorStringHexaLower);
-  } else if (id == colorid[3] || id == 0) {
-      // id=0 if user click when color tip is displayed
-      qApp->clipboard()->setText(colorStringHexaUpper);
-  } else {
-      qWarning("id=%d: This must not happen",id);
-  }
+
+    if (id == colorid[1] ) {
+        qApp->clipboard()->setText(colorStringDecimal);
+    } else if (id == colorid[2]) {
+        // this get called when user press Ctrl+C
+        //
+        // I must call grabForPixel because it's posible that
+        // this slot get executed even user doesn't right click
+        // on Quax, so updateMenuColor is not yet called and
+        // variables may contain old or invalid color
+        grabForPixel();
+        qApp->clipboard()->setText(colorStringHexaLower);
+    } else if (id == colorid[3] || id == 0) {
+        // id=0 if user click when color tip is displayed
+        qApp->clipboard()->setText(colorStringHexaUpper);
+    } else {
+        qWarning("id=%d: This must not happen",id);
+    }
 }
 
 void Quax::updateMenuColor() {
-  grabForPixel();
+    grabForPixel();
 #if QT_VERSION > 300
-  ///pixelColorIcon->clearGenerated();
+    ///pixelColorIcon->clearGenerated();
 #endif
-  pixelColorIcon->reset(pix_cursor,QIcon::Small);
+    pixelColorIcon->reset(pix_cursor,QIcon::Small);
 
-  menu->changeItem(colorid[0],QIcon(pix_cursor),QObject::tr("Copy Color"));
-  menucolor->changeItem(colorid[1],colorStringDecimal);
-  menucolor->changeItem(colorid[2],colorStringHexaLower);
-  menucolor->changeItem(colorid[3],colorStringHexaUpper);
+    menu->changeItem(colorid[0],QIcon(pix_cursor),QObject::tr("Copy Color"));
+    menucolor->changeItem(colorid[1],colorStringDecimal);
+    menucolor->changeItem(colorid[2],colorStringHexaLower);
+    menucolor->changeItem(colorid[3],colorStringHexaUpper);
 }
