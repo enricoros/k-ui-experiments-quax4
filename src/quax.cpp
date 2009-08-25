@@ -26,11 +26,11 @@
 #include <qglobal.h>
 
 #if QT_VERSION >= 300
-#include <qprocess.h>
+#include <q3process.h>
 #else
-#include <qwmatrix.h>
+#include <qmatrix.h>
 #include <qbitmap.h>
-#include <qaccel.h>
+#include <q3accel.h>
 #endif
 
 #include <qtooltip.h>
@@ -40,15 +40,27 @@
 
 
 #include "quax.h"
+//Added by qt3to4:
+#include <QTimerEvent>
+#include <QKeyEvent>
+#include <QLabel>
+#include <QPixmap>
+#include <Q3Frame>
+#include <Q3PopupMenu>
+#include <QMouseEvent>
+#include <QEvent>
+#include <QPaintEvent>
+#include <QWheelEvent>
+#include <QDesktopWidget>
 
 
-Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
+Quax::Quax() : QWidget(0,0,Qt::WStyle_Customize|Qt::WStyle_NoBorder|Qt::WType_TopLevel) {
 
     QPixmap icon=QPixmap(icon_xpm);
     setIcon(icon);
 
 #ifdef _OS_WIN32_
-    hand_cursor = QCursor(ArrowCursor);
+    hand_cursor = QCursor(Qt::ArrowCursor);
 #else
     // "borrowed" from kcursor.cpp from kdelibs
     static const unsigned char HAND_BITS[] = {
@@ -87,12 +99,12 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
     setMaximumHeight(150);
     setMinimumWidth(150);
     setMaximumWidth(150);
-    setBackgroundMode(NoBackground);
+    /// setBackgroundMode(NoBackground);
 
     // set the shape
     pix=QPixmap(mag_xpm);
     pix_alpha=QPixmap(mag_alpha_xpm);
-    setMask(*pix_alpha.mask());
+    /// setMask(*pix_alpha.mask());
 #if QT_VERSION > 300
     setErasePixmap(pix);
 #else
@@ -101,7 +113,7 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
 
 
     pix_cursor.resize(14,14);
-    pixelColorIcon = new QIconSet();
+    pixelColorIcon = new QIcon();
     colorStringDecimal = QString("255, 255, 255");
     colorStringHexaLower = QString("#ffffff");
     colorStringHexaUpper = QString("#FFFFFF");
@@ -115,9 +127,9 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
 
 
     // build RMB popup menu
-    menu = new QPopupMenu(this);
+    menu = new Q3PopupMenu(this);
 
-    menuzoom = new QPopupMenu(this);
+    menuzoom = new Q3PopupMenu(this);
     menuzoom->setCheckable(true);
     for (int i=ZOOM_SCALE_MIN; i<=ZOOM_SCALE_MAX; i++) {
         zoomid[i]=menuzoom->insertItem(QObject::tr("1:%1").arg(i),this,SLOT(zoomTo(int)));
@@ -127,11 +139,11 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
     menuzoom->insertItem(QPixmap(viewmagin_xpm),QObject::tr("Zoom In"),this,SLOT(zoomIn()),QKeySequence(QObject::tr("+","Zoom In")));
     menuzoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),QKeySequence(QObject::tr("-","Zoom Out")));
 #else
-    menuzoom->insertItem(QPixmap(viewmagin_xpm),QObject::tr("Zoom In"),this,SLOT(zoomIn()),QAccel::stringToKey(QObject::tr("+","Zoom In")));
-    menuzoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),QAccel::stringToKey(QObject::tr("-","Zoom Out")));
+    menuzoom->insertItem(QPixmap(viewmagin_xpm),QObject::tr("Zoom In"),this,SLOT(zoomIn()),Q3Accel::stringToKey(QObject::tr("+","Zoom In")));
+    menuzoom->insertItem(QPixmap(viewmagout_xpm),QObject::tr("Zoom Out"),this,SLOT(zoomOut()),Q3Accel::stringToKey(QObject::tr("-","Zoom Out")));
 #endif
 
-    menulook = new QPopupMenu(this);
+    menulook = new Q3PopupMenu(this);
     menulook->setCheckable(true);
 #if QT_VERSION >= 300
     lookid[1]=menulook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),QKeySequence(QObject::tr("U","North-West")));
@@ -139,26 +151,26 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
     lookid[2]=menulook->insertItem(QObject::tr("North-East"),this,SLOT(rotateNorthEast()),QKeySequence(QObject::tr("I","North-East")));
     lookid[3]=menulook->insertItem(QObject::tr("South-East"),this,SLOT(rotateSouthEast()),QKeySequence(QObject::tr("K","South-East")));
 #else
-    lookid[1]=menulook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),QAccel::stringToKey(QObject::tr("u","North-West")));
-    lookid[0]=menulook->insertItem(QObject::tr("South-West"),this,SLOT(rotateSouthWest()),QAccel::stringToKey(QObject::tr("j","South-West")));
-    lookid[2]=menulook->insertItem(QObject::tr("North-East"),this,SLOT(rotateNorthEast()),QAccel::stringToKey(QObject::tr("i","North-East")));
-    lookid[3]=menulook->insertItem(QObject::tr("South-East"),this,SLOT(rotateSouthEast()),QAccel::stringToKey(QObject::tr("k","South-East")));
+    lookid[1]=menulook->insertItem(QObject::tr("North-West"),this,SLOT(rotateNorthWest()),Q3Accel::stringToKey(QObject::tr("u","North-West")));
+    lookid[0]=menulook->insertItem(QObject::tr("South-West"),this,SLOT(rotateSouthWest()),Q3Accel::stringToKey(QObject::tr("j","South-West")));
+    lookid[2]=menulook->insertItem(QObject::tr("North-East"),this,SLOT(rotateNorthEast()),Q3Accel::stringToKey(QObject::tr("i","North-East")));
+    lookid[3]=menulook->insertItem(QObject::tr("South-East"),this,SLOT(rotateSouthEast()),Q3Accel::stringToKey(QObject::tr("k","South-East")));
 #endif
     menulook->insertSeparator();
 #if QT_VERSION >= 300
     menulook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),QKeySequence(QObject::tr("L","Rotate Left")));
     menulook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),QKeySequence(QObject::tr("R","Rotate Right")));
 #else
-    menulook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),QAccel::stringToKey(QObject::tr("l","Rotate Left")));
-    menulook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),QAccel::stringToKey(QObject::tr("r","Rotate Right")));
+    menulook->insertItem(QPixmap(left_xpm),QObject::tr("Rotate Left"),this,SLOT(rotateLeft()),Q3Accel::stringToKey(QObject::tr("l","Rotate Left")));
+    menulook->insertItem(QPixmap(right_xpm),QObject::tr("Rotate Right"),this,SLOT(rotateRight()),Q3Accel::stringToKey(QObject::tr("r","Rotate Right")));
 #endif
 		
-    menucolor = new QPopupMenu(this);
+    menucolor = new Q3PopupMenu(this);
     colorid[1]=menucolor->insertItem(colorStringDecimal,this,SLOT(copyColor(int)));
 #if QT_VERSION >= 300
     colorid[2]=menucolor->insertItem(colorStringHexaLower,this,SLOT(copyColor(int)),QKeySequence(QObject::tr("Ctrl+C","Copy Color")));
 #else
-    colorid[2]=menucolor->insertItem(colorStringHexaLower,this,SLOT(copyColor(int)),QAccel::stringToKey(QObject::tr("Ctrl+c","Copy Color")));
+    colorid[2]=menucolor->insertItem(colorStringHexaLower,this,SLOT(copyColor(int)),Q3Accel::stringToKey(QObject::tr("Ctrl+c","Copy Color")));
 #endif
     colorid[3]=menucolor->insertItem(colorStringHexaUpper,this,SLOT(copyColor(int)));
 
@@ -168,7 +180,7 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
 #if QT_VERSION >= 300
     menu->insertItem(QPixmap(help_xpm),QObject::tr("Help"),this,SLOT(help()),QKeySequence(QObject::tr("H","Help")));
 #else
-    menu->insertItem(QPixmap(help_xpm),QObject::tr("Help"),this,SLOT(help()),QAccel::stringToKey(QObject::tr("h","Help")));
+    menu->insertItem(QPixmap(help_xpm),QObject::tr("Help"),this,SLOT(help()),Q3Accel::stringToKey(QObject::tr("h","Help")));
 #endif
     menu->insertSeparator();
     menu->insertItem(QObject::tr("About Quax"),this,SLOT(about()));
@@ -177,7 +189,7 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
 #if QT_VERSION >= 300
     menu->insertItem(QPixmap(exit_xpm),QObject::tr("Quit"),qApp,SLOT(quit()),QKeySequence(QObject::tr("Q","Quit")));
 #else
-    menu->insertItem(QPixmap(exit_xpm),QObject::tr("Quit"),qApp,SLOT(quit()),QAccel::stringToKey(QObject::tr("q","Quit")));
+    menu->insertItem(QPixmap(exit_xpm),QObject::tr("Quit"),qApp,SLOT(quit()),Q3Accel::stringToKey(QObject::tr("q","Quit")));
 #endif
 
     menuzoom->setItemChecked(zoomid[zoom],true);
@@ -185,18 +197,18 @@ Quax::Quax() : QWidget(0,0,WStyle_Customize|WStyle_NoBorder|WType_TopLevel) {
     connect(menu,SIGNAL(aboutToShow()),this,SLOT(updateMenuColor()));
     
     // set the color tooltip
-    colorTip = new QLabel(0,0,WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM);
+    colorTip = new QLabel; /// (0,0,WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM);
     colorTip->setMargin(1);
     colorTip->setIndent(0);
-    colorTip->setAutoMask(false);
+    /// colorTip->setAutoMask(false);
     colorTip->setLineWidth(1);
 #if QT_VERSION >= 300
-    colorTip->setAlignment(QLabel::AlignAuto | QLabel::AlignTop);
+    colorTip->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 #else
     colorTip->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 #endif
-    colorTip->setAutoResize(true);
-    colorTip->setFrameStyle(QFrame::Box | QFrame::Plain);
+    /// colorTip->setAutoResize(true);
+    colorTip->setFrameStyle(Q3Frame::Box | Q3Frame::Plain);
     colorTip->setPalette(QToolTip::palette());
     colorTip->setTextFormat(Qt::RichText);
 
@@ -352,7 +364,7 @@ void Quax::grab() {
     }
     p.end();
 
-    QWMatrix m;
+    QMatrix m;
     m.scale((double)zoom,(double)zoom);
     pix_zoom=pix_grab.xForm(m);
     repaint(false);
@@ -370,14 +382,16 @@ void Quax::grabForPixel() {
   colorStringHexaUpper = colorStringHexaLower.upper();
 
   // make a little pixmap with grabbed color
-  QWMatrix m;
+  QMatrix m;
   m.scale((double)14,(double)14);
   pix_cursor=pix_grab.xForm(m);
 }
 
 void Quax::displayColorTip() {
+return;
+/*
   grabForPixel();
-  QMimeSourceFactory::defaultFactory()->setPixmap("pixel",pix_cursor);    
+  Q3MimeSourceFactory::defaultFactory()->setPixmap("pixel",pix_cursor);    
   colorTip->setText("<qml>&nbsp;<img height=\"14\" width=\"14\" src=\"pixel\">&nbsp;<tt>" + colorStringHexaUpper + "</tt></qml>");
   
   int x_pos, y_pos;
@@ -398,12 +412,13 @@ void Quax::displayColorTip() {
   }
   colorTip->move(x_pos,y_pos);
   if (colorTip->isHidden()) colorTip->show();
+  */
 }
 
 
 void Quax::mousePressEvent(QMouseEvent *e) {
     switch (e->button()) {
-    case LeftButton:
+    case Qt::LeftButton:
         if (colorTipShowed) {
           copyColor(0);
           setCursor(copy_cursor);
@@ -413,7 +428,7 @@ void Quax::mousePressEvent(QMouseEvent *e) {
           dragOffset = QCursor::pos() - QPoint(geometry().left(),geometry().top());
         }
         break;
-    case RightButton:
+    case Qt::RightButton:
         menu->popup(QCursor::pos());
         break;
     default:
@@ -423,7 +438,7 @@ void Quax::mousePressEvent(QMouseEvent *e) {
 
 void Quax::mouseReleaseEvent(QMouseEvent *e) {
     switch (e->button()) {
-    case LeftButton:
+    case Qt::LeftButton:
         if (colorTipShowed) {
           setCursor(cross_cursor);
         } else {
@@ -487,29 +502,29 @@ void Quax::keyPressEvent(QKeyEvent *e) {
 
 
     switch (e->key()) {
-      case Key_Left:
+      case Qt::Key_Left:
         dist.setX(-1);
       break;
-      case Key_Right:
+      case Qt::Key_Right:
         dist.setX(1);
       break;
-      case Key_Up:
+      case Qt::Key_Up:
         dist.setY(-1);
       break;
-      case Key_Down:
+      case Qt::Key_Down:
         dist.setY(1);
       break;
-		  case Key_Equal:
+		  case Qt::Key_Equal:
 				zoomIn();
       break;
-		  case Key_Underscore:
+		  case Qt::Key_Underscore:
 				zoomOut();
       break;
       default:
         e->ignore();
         return;
     }
-    if (e->state() & ShiftButton) {
+    if (e->state() & Qt::ShiftButton) {
         dist *= 10;
     }
     move(pos()+dist);
@@ -521,7 +536,7 @@ void Quax::help() {
 #else
   QString helpApp = "kfmclient";
 
-  QProcess *proc = new QProcess(this);
+  Q3Process *proc = new Q3Process(this);
   proc->addArgument(helpApp);
   proc->addArgument("openURL");
   proc->addArgument("help:quax");
@@ -531,7 +546,7 @@ void Quax::help() {
             QObject::tr("<qml>There was an error executing <b>%1</b> application. "
                "Please check your KDE installation. You may try to open an <b>xterm</b> "
                "window and run <tt>man quax</tt> from there.</qml>").arg(helpApp),
-            QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+            QMessageBox::Ok, Qt::NoButton, Qt::NoButton);
   }
 #endif
 #endif
@@ -632,10 +647,10 @@ void Quax::rotateRight() {
 }
 
 void Quax::rotate(int pos) {
-    QWMatrix m;
+    QMatrix m;
     m.rotate(pos*90.0);
     setBackgroundPixmap(pix.xForm(m));
-    setMask(*(pix_alpha.xForm(m)).mask());
+    /// setMask(*(pix_alpha.xForm(m)).mask());
 }
 
 
@@ -663,11 +678,11 @@ void Quax::copyColor(int id) {
 void Quax::updateMenuColor() {
   grabForPixel();
 #if QT_VERSION > 300
-  pixelColorIcon->clearGenerated();
+  ///pixelColorIcon->clearGenerated();
 #endif
-  pixelColorIcon->reset(pix_cursor,QIconSet::Small);
+  pixelColorIcon->reset(pix_cursor,QIcon::Small);
 
-  menu->changeItem(colorid[0],QIconSet(pix_cursor),QObject::tr("Copy Color"));
+  menu->changeItem(colorid[0],QIcon(pix_cursor),QObject::tr("Copy Color"));
   menucolor->changeItem(colorid[1],colorStringDecimal);
   menucolor->changeItem(colorid[2],colorStringHexaLower);
   menucolor->changeItem(colorid[3],colorStringHexaUpper);

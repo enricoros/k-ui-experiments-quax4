@@ -25,14 +25,21 @@
 #include <qpainter.h>
 #include <qmap.h>
 
-#include <qiconset.h>
+#include <qicon.h>
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qmessagebox.h>
-#include <qapp.h>
-#include <qwmatrix.h>
-#include <qpopupmenu.h>
 #include <qapplication.h>
+#include <qmatrix.h>
+#include <q3popupmenu.h>
+#include <qapplication.h>
+//Added by qt3to4:
+#include <QWheelEvent>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QTimerEvent>
+#include <QKeyEvent>
+#include <QPaintEvent>
 
 #define PIX_CURSOR_SCALE 10
 #define ZOOM_SCALE_MIN 2
@@ -126,9 +133,9 @@ private:
   QString colorStringDecimal,   ///< the current color under mouse as decimals comma seperated
           colorStringHexaLower, ///< the current color under mouse as web RGB with lower hexadecimals
           colorStringHexaUpper; ///< the current color under mouse as web RGB with upper hexadecimals
-  QIconSet *pixelColorIcon; ///< The icon set which is used in QML content from @ref colorTip
+  QIcon *pixelColorIcon; ///< The icon set which is used in QML content from @ref colorTip
   QLabel *colorTip; ///< The tool tip for displaying current color under mouse
-  QPopupMenu *menu, ///< The main menu of Quax
+  Q3PopupMenu *menu, ///< The main menu of Quax
              *menuzoom, ///< Menu for zoom levels and zoom in and zoom out items
              *menulook,  ///< The "Look at" menu
              *menucolor; ///< Menu for coying textual representation into clipboard
