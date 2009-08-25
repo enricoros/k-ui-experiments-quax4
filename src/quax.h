@@ -79,12 +79,11 @@ class Quax : public QWidget
     
     protected:
         /**
-         * Show color tooltip when mouse enter Quax area, and set
-         * the @p m_cursorOverQuax flag.
+         * Show color tooltip when mouse enter Quax area.
          */
         void enterEvent(QEvent *e);
         /**
-         * Hide color tooltip if shown, and set the @p m_cursorOverQuax flag.
+         * Hide color tooltip if shown.
          */
         void leaveEvent(QEvent *e);
         /**
@@ -93,16 +92,16 @@ class Quax : public QWidget
          */
         void mousePressEvent(QMouseEvent *e);
         /**
-         * Executed when user release one mouse button.
-         */
-        void mouseReleaseEvent(QMouseEvent *e);
-        /**
          * Executed when user release move the mouse. If the color tip is enabled,
          * then displayed color is updated as well the tooltip position.
          * If is @p m_inDrag is true, then Quax position is updated (dragged)
          * to that of mouse position.
          */
         void mouseMoveEvent(QMouseEvent *e);
+        /**
+         * Executed when user release one mouse button.
+         */
+        void mouseReleaseEvent(QMouseEvent *e);
         /**
          * Get the modifier keys status and display color tooltip if Shift and Ctrl
          * are both pressed down. If cursor keys are pressed, then adjust Quax
@@ -132,20 +131,15 @@ class Quax : public QWidget
         QString m_colorStringDecimal,   ///< the current color under mouse as decimals comma seperated
                 m_colorStringHexaLower, ///< the current color under mouse as web RGB with lower hexadecimals
                 m_colorStringHexaUpper; ///< the current color under mouse as web RGB with upper hexadecimals
-        QIcon *m_pixelColorIcon; ///< The icon set which is used in QML content from @ref colorTip
-        QLabel *colorTip; ///< The tool tip for displaying current color under mouse
+        QLabel *m_colorTip; ///< The tool tip for displaying current color under mouse
         QMenu *menu, ///< The main menu of Quax
               *menuZoom, ///< Menu for zoom levels and zoom in and zoom out items
               *menuLook,  ///< The "Look at" menu
               *menuColor; ///< Menu for coying textual representation into clipboard
-        QPixmap pix,        ///< Quax skin image
-                pix_alpha,  ///< Quax alpha mask for skin image
-                pix_zoom,   ///< The grabbed image zoomend and clipped
-                pix_cursor; ///< The icon used in color menu item and color tooltip
+        QPixmap m_zoomPixmap,  ///< The grabbed image zoomend and clipped
+                m_colorPixmap; ///< The icon used in color menu item and color tooltip
         bool m_inDrag,         ///< if true, the user is dragging the Quax
-             m_colorTipShowed, ///< if true, the color tooltip is displayed
-             m_cursorOverQuax, ///< if true, mouse cursor is over Quax surface
-             m_ctrlKeyOn;      ///< if true, the Ctrl key is pressed down
+             m_colorTipEnabled;///< if true, the color tooltip is displayed
         int m_zoom, ///< current zoom level
             m_lookAt; ///< current quadrant direction where Quax "look at"
         QPoint dragOffset;   ///< the offset between Quax position and new mouse position
@@ -154,7 +148,7 @@ class Quax : public QWidget
                       colorid; ///< mapping between text color type and @ref menucolor menu item ids
 
         /**
-         * It grab desktop area, scale it, clip it with circle region,
+         * It grabs the desktop area, scale it, clip it with circle region,
          * and then paint on Quax area.
          */
         void grab();
@@ -163,7 +157,7 @@ class Quax : public QWidget
          * is updated runnning @ref grabForPixel(). If tooltip will be displayed
          * clipped by screen margins, then it will be repositioned before moving.
          */
-        void displayColorTip();
+        void genColorTip();
         /**
          * Grab exactly one pixel under mouse cursor to show it in color tooltip.
          */
@@ -233,7 +227,7 @@ class Quax : public QWidget
          * @ref grabForPixel() prior to cliboard operation.
          * @param id the menu identificator to get what color menu item was selected
          */
-        void copyColor(int id);
+        void colorToClipboard(int id);
         /**
          * Build the menu left pixmap from the grabed color under mouse. This is slot is
          * called from QPopupMenu::aboutToShow signal.
