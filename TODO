@@ -2,6 +2,8 @@
    Quax TODO
  =============
 
+DONE: * port to Qt 4.5
+
 DONE: * write HTML/DocBook manual + pictures
 
 DONE: * use QtAssistant or KHelpCenter for help display

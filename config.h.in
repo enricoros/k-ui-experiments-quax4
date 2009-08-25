@@ -1,9 +1,0 @@
-
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
-
-/* Quax version*/ 
-#define VERSION "@VERSION@"
-#define RELEASE "@RELEASE@"
-
-#endif /* __CONFIG_H__ */

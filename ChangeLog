@@ -1,3 +1,6 @@
+2009-08-25  eros 1.2 release
+	* porting: ported the app to Qt 4 (tested with 4.5+)
+
 2003-11-20  claudiuc 1.0-1 release
 
 2003-11-19  claudiuc
